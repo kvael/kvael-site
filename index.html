@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-VAEL | 스마트 플랜트 엔지니어링 플랫폼</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ───────────────────────────────────────
+   전역 변수 & 리셋
+──────────────────────────────────────── */
+:root {
+  --primary:   #1A5FAD;
+  --primary2:  #1550a0;
+  --light-blue:#EEF4FD;
+  --blue-bd:   #b5cff5;
+  --green:     #1a7a40;
+  --green-lt:  #eef8f2;
+  --green-bd:  #a0d8b8;
+  --orange:    #b85c00;
+  --orange-lt: #fff5eb;
+  --orange-bd: #edb87a;
+  --text:      #1c1c1c;
+  --text2:     #5c5752;
+  --text3:     #9c9890;
+  --border:    #dedad3;
+  --border2:   #c5c0b8;
+  --bg:        #f5f3ef;
+  --bg2:       #ffffff;
+  --bg3:       #eeebe5;
+  --navy:      #0a1628;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard',sans-serif;color:var(--text);background:#FAFAFC;line-height:1.6}
+a{text-decoration:none;color:inherit}
+
+/* ───────────────────────────────────────
+   네비게이션
+──────────────────────────────────────── */
+header{
+  background:rgba(255,255,255,.95);backdrop-filter:blur(8px);
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  position:fixed;width:100%;top:0;z-index:1000
+}
+.nav-wrap{max-width:1200px;margin:0 auto;padding:.8rem 2rem;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:1.6rem;font-weight:800;color:var(--primary);letter-spacing:1px;cursor:pointer}
+.nav-links{display:flex;gap:0;align-items:center}
+.nav-item{position:relative}
+.nav-link{
+  padding:.6rem 1.1rem;font-weight:600;font-size:.95rem;color:#333;
+  cursor:pointer;border:none;background:none;font-family:'Pretendard',sans-serif;
+  display:flex;align-items:center;gap:4px;border-radius:6px;transition:all .15s
+}
+.nav-link:hover,.nav-link.active{color:var(--primary);background:var(--light-blue)}
+.nav-link svg{width:13px;height:13px;transition:transform .2s}
+.nav-link.open svg{transform:rotate(180deg)}
+.dropdown{
+  position:absolute;top:calc(100% + 4px);left:0;
+  background:#fff;border:1px solid #e0e0e0;border-radius:12px;
+  padding:6px;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.12);
+  opacity:0;pointer-events:none;transform:translateY(-6px);
+  transition:all .18s;z-index:200
+}
+.dropdown.open{opacity:1;pointer-events:auto;transform:translateY(0)}
+.dd-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:8px;font-size:13px;color:#333;cursor:pointer;
+  transition:background .12s;border:none;background:none;
+  font-family:'Pretendard',sans-serif;width:100%;text-align:left
+}
+.dd-item:hover{background:var(--light-blue);color:var(--primary)}
+.dd-icon{width:30px;height:30px;background:var(--light-blue);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:all .15s}
+.dd-item:hover .dd-icon{background:var(--primary);color:#fff}
+.dd-label{font-weight:600;font-size:13px}
+.dd-sub{font-size:11px;color:#999;margin-top:1px}
+.btn-cta{background:var(--primary);color:#fff;padding:.5rem 1.5rem;border-radius:6px;font-weight:600;font-size:.9rem;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:background .15s}
+.btn-cta:hover{background:var(--primary2)}
+
+/* ───────────────────────────────────────
+   페이지 전환
+──────────────────────────────────────── */
+.page{display:none}
+.page.active{display:block}
+
+/* ───────────────────────────────────────
+   히어로
+──────────────────────────────────────── */
+#hero{
+  min-height:100vh;
+  background:linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.65)),
+    url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070') center/cover fixed;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  color:#fff;text-align:center;padding:6rem 2rem 5rem
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  border-radius:50px;padding:.4rem 1.2rem;font-size:.85rem;color:rgba(255,255,255,.85);
+  margin-bottom:1.8rem;backdrop-filter:blur(4px);letter-spacing:.3px
+}
+#hero h1{
+  font-size:clamp(2.6rem,6vw,4.2rem);font-weight:800;
+  margin-bottom:1.4rem;line-height:1.15;
+  text-shadow:0 2px 16px rgba(0,0,0,.4)
+}
+#hero h1 span{color:#7eb8ff}
+#hero p{
+  font-size:clamp(1rem,2vw,1.25rem);color:rgba(255,255,255,.8);
+  margin-bottom:2.8rem;max-width:680px;line-height:1.75;
+  text-shadow:0 1px 6px rgba(0,0,0,.3)
+}
+.hero-btn{
+  display:inline-block;background:var(--primary);color:#fff;
+  padding:1.1rem 3rem;font-size:1.1rem;font-weight:700;border-radius:50px;
+  box-shadow:0 6px 24px rgba(26,95,173,.4);transition:all .3s;
+  cursor:pointer;border:none;font-family:'Pretendard',sans-serif;
+  letter-spacing:.3px
+}
+.hero-btn:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(26,95,173,.5);background:var(--primary2)}
+.hero-stats{
+  display:flex;align-items:center;gap:0;
+  margin-top:4rem;flex-wrap:wrap;justify-content:center;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:.8rem 1.5rem;backdrop-filter:blur(8px)
+}
+.hs-item{text-align:center;padding:.4rem 1.6rem}
+.hs-divider{width:1px;height:32px;background:rgba(255,255,255,.15)}
+.hs-num{font-size:1.6rem;font-weight:800;color:#7eb8ff;letter-spacing:.5px}
+.hs-label{font-size:.72rem;color:rgba(255,255,255,.5);letter-spacing:.6px;margin-top:3px;text-transform:uppercase}
+
+/* ───────────────────────────────────────
+   섹션 공통
+──────────────────────────────────────── */
+.section{padding:80px 2rem}
+.section-inner{max-width:1100px;margin:0 auto}
+.sec-tag{font-size:.75rem;font-weight:700;color:var(--primary);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.sec-title{font-size:clamp(1.8rem,3vw,2.4rem);font-weight:800;color:var(--navy);margin-bottom:12px}
+.sec-desc{font-size:1rem;color:#666;max-width:560px;line-height:1.8}
+
+/* 서비스 카드 */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.svc-card{background:#fff;border:1px solid #eee;border-radius:14px;padding:28px;transition:all .2s;position:relative;overflow:hidden}
+.svc-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--primary);transform:scaleX(0);transition:transform .2s;transform-origin:left}
+.svc-card:hover{box-shadow:0 12px 40px rgba(26,95,173,.1);transform:translateY(-3px)}
+.svc-card:hover::after{transform:scaleX(1)}
+.svc-icon{font-size:2rem;margin-bottom:14px}
+.svc-title{font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px}
+.svc-desc{font-size:.875rem;color:#666;line-height:1.7}
+.svc-badge{display:inline-block;margin-top:14px;font-size:.7rem;font-weight:700;color:var(--primary);background:var(--light-blue);padding:3px 10px;border-radius:20px}
+
+/* AI 견적 카드 */
+.quote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.qcard{background:#fff;border:1px solid #eee;border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
+.qcard:hover{box-shadow:0 14px 40px rgba(26,95,173,.12);transform:translateY(-3px)}
+.qcard-top{padding:24px 24px 18px;border-bottom:1px solid #f0f0f0}
+.qcard-tag{font-size:.7rem;font-weight:700;color:var(--primary);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.qcard-title{font-size:1.15rem;font-weight:800;color:var(--navy);margin-bottom:4px}
+.qcard-sub{font-size:.8rem;color:#999}
+.qcard-body{padding:16px 24px}
+.qcard-feat{display:flex;align-items:center;gap:8px;font-size:.825rem;color:#555;margin-bottom:8px}
+.feat-chk{width:17px;height:17px;background:var(--light-blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:var(--primary);flex-shrink:0}
+.qcard-foot{padding:14px 24px 22px}
+.qcard-btn{display:block;width:100%;text-align:center;background:var(--primary);color:#fff;padding:10px;border-radius:8px;font-size:.85rem;font-weight:700;border:none;cursor:pointer;font-family:'Pretendard',sans-serif;transition:background .15s}
+.qcard-btn:hover{background:var(--primary2)}
+.qcard-btn.wip{background:#e0e0e0;color:#999;cursor:not-allowed}
+
+/* 지원 */
+.sup-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px}
+.sup-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:24px}
+.sup-icon{font-size:1.6rem;margin-bottom:10px}
+.sup-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:6px}
+.sup-desc{font-size:.85rem;color:#666;line-height:1.7}
+
+/* WIP 페이지 */
+.wip-wrap{min-height:calc(100vh - 64px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:4rem 2rem;padding-top:calc(64px + 4rem)}
+.wip-icon{font-size:4rem;margin-bottom:1.2rem;opacity:.35}
+.wip-title{font-size:2rem;font-weight:800;color:var(--navy);margin-bottom:.6rem}
+.wip-desc{font-size:1rem;color:#666;margin-bottom:2rem;line-height:1.7}
+.wip-back{background:var(--primary);color:#fff;padding:.75rem 1.8rem;border-radius:8px;font-size:.9rem;font-weight:700;border:none;cursor:pointer;font-family:'Pretendard',sans-serif}
+
+/* 푸터 */
+footer{background:#1a1a2e;color:rgba(255,255,255,.4);padding:3rem 2rem;text-align:center}
+.foot-logo{font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:1px;margin-bottom:.6rem}
+.foot-desc{font-size:.85rem;line-height:1.7;margin-bottom:1.2rem}
+.foot-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.2rem}
+.foot-links a{color:rgba(255,255,255,.4);font-size:.85rem;transition:color .15s;cursor:pointer}
+.foot-links a:hover{color:#fff}
+.foot-copy{font-size:.75rem;border-top:1px solid rgba(255,255,255,.08);padding-top:1.2rem;margin-top:.5rem}
+
+/* ───────────────────────────────────────
+   견적 폼 스타일 (tank_quote_v4 통합)
+──────────────────────────────────────── */
+.quote-page-wrap{padding-top:64px;min-height:100vh;background:var(--bg)}
+.quote-page-inner{max-width:1080px;margin:0 auto;padding:32px 16px 48px}
+.qp-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;border:none;background:none;margin-bottom:16px;font-family:'Pretendard',sans-serif;padding:0}
+.qp-back:hover{color:var(--primary)}
+.qp-title-wrap{margin-bottom:20px}
+.qp-title{font-size:1.5rem;font-weight:800;color:var(--navy)}
+.qp-sub{font-size:.85rem;color:var(--text2);margin-top:4px}
+
+/* 폼 공통 */
+.fcard{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.fcard-hdr{background:var(--bg3);border-bottom:1px solid var(--border);padding:9px 16px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:7px}
+.fdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.fcard-body{padding:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;padding:7px 10px;width:100%;outline:none;font-family:'Pretendard',sans-serif;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,95,173,.08)}
+select option{background:#fff}
+
+/* 알림 배너 */
+.notice-bar{background:var(--orange-lt);border:1px solid var(--orange-bd);border-left:3px solid var(--orange);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--orange);margin-bottom:14px;line-height:1.7}
+
+/* 업로드 */
+.upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:var(--light-blue)}
+.upload-zone.done{border-color:var(--green);background:var(--green-lt);border-style:solid}
+.upload-icon{font-size:28px;margin-bottom:6px}
+.upload-title{font-size:13px;font-weight:600;color:var(--text)}
+.upload-sub{font-size:11px;color:var(--text2);margin-top:3px}
+
+.pdf-result{background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:12px 14px;margin-top:10px;display:none}
+.pdf-result-hdr{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px}
+.pdf-dims{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pdf-dim{background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:8px 10px}
+.pdf-dim-label{font-size:10px;color:var(--text2);margin-bottom:2px}
+.pdf-dim-val{font-size:13px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace}
+.pdf-note{font-size:11px;color:var(--text2);margin-top:8px;line-height:1.6}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--blue-bd);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 제작방식 배너 */
+.fab{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;margin:12px 0 0;font-size:13px}
+.fab-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.fab strong{display:block;font-weight:700;margin-bottom:1px;font-size:13px}
+.fab span{font-size:11px;opacity:.85}
+.fab.shop{background:var(--green-lt);border:1px solid var(--green-bd);color:var(--green)}
+.fab.field{background:var(--orange-lt);border:1px solid var(--orange-bd);color:var(--orange)}
+
+/* 두께 3열 */
+.thick-hdr{display:grid;grid-template-columns:90px 1fr 1fr 1fr;gap:6px;margin-bottom:6px;padding:0 2px}
+.thick-hdr span{font-size:10px;font-weight:700;text-align:center;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.thick-hdr .eng-h{color:var(--primary)}
+.thick-hdr .ai-h{color:var(--green)}
+.thick-row{display:grid;grid-template-columns:90px 1fr 1fr 1fr;gap:6px;align-items:center;padding:6px 2px;border-bottom:1px solid var(--border)}
+.thick-row:last-child{border-bottom:none}
+.thick-name{font-size:11px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace}
+.thick-eng{background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:5px;padding:5px;text-align:center;font-size:13px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace}
+.thick-manual input{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px;text-align:center;font-size:13px;color:var(--text);width:100%;font-family:'JetBrains Mono',monospace;outline:none}
+.thick-manual input:focus{border-color:var(--border2)}
+.thick-ai{background:var(--green-lt);border:1px solid var(--green-bd);border-radius:5px;padding:5px;text-align:center;font-size:11px;color:var(--green);line-height:1.5}
+
+/* BOQ */
+.boq-sec{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.boq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.boq-item{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px}
+.boq-label{font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600}
+.boq-val{font-size:14px;font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace}
+.boq-sub{font-size:10px;color:var(--text2);margin-top:2px}
+.sub-rows{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:12px}
+.sub-row{display:flex;justify-content:space-between;align-items:center;padding:8px 13px;font-size:13px;border-bottom:1px solid var(--border)}
+.sub-row:last-child{border-bottom:none}
+.sub-row .lbl{color:var(--text2)}
+.sub-row .val{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--text)}
+.total-bar{background:var(--primary);border-radius:8px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.total-label{font-size:13px;font-weight:600;color:rgba(255,255,255,.85)}
+.total-val{font-size:20px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px}
+.cc-item{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px}
+.cc-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:600}
+.cc-val{font-size:13px;font-weight:700;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.ai-box{background:var(--green-lt);border:1px solid var(--green-bd);border-radius:8px;padding:12px 14px;margin-top:10px}
+.ai-box-title{font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
+.ai-box-body{font-size:12px;color:#1a5530;line-height:1.9;white-space:pre-line}
+.divider{height:1px;background:var(--border);margin:12px 0}
+
+/* 폼 버튼 */
+.fbtn-wrap{display:flex;gap:8px;margin-top:4px}
+.fbtn{flex:1;padding:11px;font-size:13px;font-weight:700;border-radius:8px;cursor:pointer;border:none;font-family:'Pretendard',sans-serif;transition:all .15s}
+.fbtn-reset{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);flex:0 0 80px}
+.fbtn-reset:hover{background:var(--border)}
+.fbtn-print{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);flex:0 0 110px}
+.fbtn-print:hover{background:var(--border)}
+.fbtn-submit{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(26,95,173,.2)}
+.fbtn-submit:hover{background:var(--primary2)}
+
+/* 인쇄 */
+@media print{
+  header,footer,.qp-back,.fbtn-wrap,.upload-zone,.pdf-result,.notice-bar{display:none!important}
+  .quote-page-wrap{padding-top:0}
+  .fcard{box-shadow:none;border-radius:4px;page-break-inside:avoid}
+  .thick-eng,.thick-ai,.total-bar,.fab{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* 햄버거 */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;border:none;background:none;padding:4px}
+.hamburger span{width:22px;height:2px;background:#333;border-radius:2px;transition:all .3s}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:rgba(255,255,255,.98);backdrop-filter:blur(12px);border-bottom:1px solid #eee;z-index:999;padding:8px 0;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.mobile-menu.open{display:block}
+.mob-item{display:block;width:100%;text-align:left;padding:13px 24px;font-size:15px;font-weight:600;color:#333;border:none;background:none;font-family:'Pretendard',sans-serif;cursor:pointer;transition:all .15s}
+.mob-item:hover{color:var(--primary);background:var(--light-blue)}
+.mob-sub{padding:10px 24px 10px 42px;font-size:13px;font-weight:500;color:#555;display:block;border:none;background:none;width:100%;text-align:left;cursor:pointer;font-family:'Pretendard',sans-serif}
+.mob-sub:hover{color:var(--primary);background:var(--light-blue)}
+.mob-divider{height:1px;background:#f0f0f0;margin:4px 0}
+
+/* 반응형 */
+@media(max-width:780px){
+  .svc-grid,.quote-grid,.sup-grid{grid-template-columns:1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .boq-grid{grid-template-columns:1fr 1fr}
+  .cc-grid{grid-template-columns:1fr 1fr}
+  .thick-hdr,.thick-row{grid-template-columns:68px 1fr 1fr 1fr}
+  .pdf-dims{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .btn-cta{display:none}
+  .hero-stats{flex-direction:column;gap:0;padding:.6rem 1rem}
+  .hs-divider{width:60px;height:1px}
+  .hs-item{padding:.3rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ── 네비게이션 ── -->
+<header>
+  <div class="nav-wrap">
+    <div class="logo" onclick="showPage('home')">K-VAEL</div>
+    <nav class="nav-links">
+      <div class="nav-item"><button class="nav-link" onclick="showPage('about')">회사 소개</button></div>
+      <div class="nav-item"><button class="nav-link" onclick="showPage('services')">사업 분야</button></div>
+      <div class="nav-item">
+        <button class="nav-link" id="quote-nav-btn" onclick="toggleDropdown()">
+          AI 견적
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown" id="quote-dropdown">
+          <button class="dd-item" onclick="showPage('quote-round');closeDropdown()">
+            <div class="dd-icon">⭕</div>
+            <div><div class="dd-label">원형 탱크</div><div class="dd-sub">API 650 · 자동 견적</div></div>
+          </button>
+          <button class="dd-item" onclick="showPage('wip');closeDropdown()">
+            <div class="dd-icon">🔩</div>
+            <div><div class="dd-label">배관 공사</div><div class="dd-sub">준비 중</div></div>
+          </button>
+          <button class="dd-item" onclick="showPage('wip');closeDropdown()">
+            <div class="dd-icon">⬜</div>
+            <div><div class="dd-label">사각 탱크</div><div class="dd-sub">준비 중</div></div>
+          </button>
+        </div>
+      </div>
+      <div class="nav-item"><button class="nav-link" onclick="showPage('support')">고객 지원</button></div>
+    </nav>
+    <button class="btn-cta" onclick="showPage('quote-round')">무료 견적 요청</button>
+    <button class="hamburger" onclick="toggleMenu()" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- 모바일 메뉴 -->
+<div class="mobile-menu" id="mobile_menu">
+  <button class="mob-item" onclick="showPage('about');closeMenu()">회사 소개</button>
+  <button class="mob-item" onclick="showPage('services');closeMenu()">사업 분야</button>
+  <div class="mob-divider"></div>
+  <button class="mob-item">AI 견적</button>
+  <button class="mob-sub" onclick="showPage('quote-round');closeMenu()">⭕ 원형 탱크</button>
+  <button class="mob-sub" onclick="showPage('wip');closeMenu()">🔩 배관 공사 (준비중)</button>
+  <button class="mob-sub" onclick="showPage('wip');closeMenu()">⬜ 사각 탱크 (준비중)</button>
+  <div class="mob-divider"></div>
+  <button class="mob-item" onclick="showPage('support');closeMenu()">고객 지원</button>
+  <button class="mob-item" style="color:var(--primary);font-weight:700" onclick="showPage('quote-round');closeMenu()">무료 견적 요청 →</button>
+</div>
+
+<!-- ══════════════ HOME ══════════════ -->
+<div id="home" class="page active">
+
+  <section id="hero">
+    <div class="hero-badge">🤖 AI-Powered Engineering Platform</div>
+    <h1>도면 하나로 끝나는<br><span>AI 자동 견적 시스템</span></h1>
+    <p>K-VAEL의 독보적인 AI 설계 기술로,<br>설계서 업로드부터 BOQ 자동 생성·이메일 발송까지 단 몇 분에 완성하세요.</p>
+    <button class="hero-btn" onclick="showPage('quote-round')">AI 통합 견적 시작하기 →</button>
+    <div class="hero-stats">
+      <div class="hs-item"><div class="hs-num">API650</div><div class="hs-label">설계 기준 적용</div></div>
+      <div class="hs-item"><div class="hs-divider"></div></div>
+      <div class="hs-item"><div class="hs-num">3열</div><div class="hs-label">공학식 / 수동 / AI</div></div>
+      <div class="hs-item"><div class="hs-divider"></div></div>
+      <div class="hs-item"><div class="hs-num">AUTO</div><div class="hs-label">BOQ 자동 생성</div></div>
+      <div class="hs-item"><div class="hs-divider"></div></div>
+      <div class="hs-item"><div class="hs-num">MAIL</div><div class="hs-label">이메일 자동 발송</div></div>
+    </div>
+  </section>
+
+  <!-- 사업분야 미리보기 -->
+  <div class="section" style="background:#fff">
+    <div class="section-inner">
+      <div class="sec-tag">Services</div>
+      <h2 class="sec-title">사업 분야</h2>
+      <p class="sec-desc">환경·플랜트 엔지니어링 전반에 걸친 설계, 견적, 시공 서비스를 제공합니다.</p>
+      <div class="svc-grid">
+        <div class="svc-card"><div class="svc-icon">🏭</div><div class="svc-title">탱크 엔지니어링</div><div class="svc-desc">원형·사각 저장탱크 설계 및 제작. API 650 기준 두께 계산, BOQ 자동 산출.</div><span class="svc-badge">AI 견적 지원</span></div>
+        <div class="svc-card"><div class="svc-icon">🔧</div><div class="svc-title">배관 공사</div><div class="svc-desc">산업 플랜트 배관 설계·시공. 재질 선정, 용접 사양, 공수 계산 자동화 예정.</div><span class="svc-badge">준비 중</span></div>
+        <div class="svc-card"><div class="svc-icon">🌿</div><div class="svc-title">환경 설비</div><div class="svc-desc">폐수처리, 대기오염방지, UASB 혐기성 소화 시스템 설계 및 운영.</div><span class="svc-badge">준비 중</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 견적 미리보기 -->
+  <div class="section" style="background:#FAFAFC">
+    <div class="section-inner">
+      <div class="sec-tag">AI Quotation</div>
+      <h2 class="sec-title">K-VAEL AI Estimate</h2>
+      <p class="sec-desc">신속하고 정확한 AI 예비 견적 서비스를 체험해 보세요.</p>
+      <div class="quote-grid">
+        <div class="qcard" onclick="showPage('quote-round')">
+          <div class="qcard-top"><div class="qcard-tag">원형 탱크</div><div class="qcard-title">Circular Tank</div><div class="qcard-sub">API 650 · 1-Foot Method</div></div>
+          <div class="qcard-body">
+            <div class="qcard-feat"><div class="feat-chk">✓</div>PDF 도면 자동 치수 인식</div>
+            <div class="qcard-feat"><div class="feat-chk">✓</div>공학식 / 수동 / AI 3열 비교</div>
+            <div class="qcard-feat"><div class="feat-chk">✓</div>엑셀 BOQ + 보고서 자동 생성</div>
+            <div class="qcard-feat"><div class="feat-chk">✓</div>이메일 자동 발송</div>
+          </div>
+          <div class="qcard-foot"><button class="qcard-btn">견적 시작 →</button></div>
+        </div>
+        <div class="qcard">
+          <div class="qcard-top"><div class="qcard-tag">배관 공사</div><div class="qcard-title">Pipe & Fitting</div><div class="qcard-sub">준비 중</div></div>
+          <div class="qcard-body">
+            <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>배관 사양 자동 산출</div>
+            <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>재질별 단가 비교</div>
+            <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>용접 공수 자동 계산</div>
+          </div>
+          <div class="qcard-foot"><button class="qcard-btn wip" onclick="event.stopPropagation()">준비 중</button></div>
+        </div>
+        <div class="qcard">
+          <div class="qcard-top"><div class="qcard-tag">사각 탱크</div><div class="qcard-title">Rectangular Tank</div><div class="qcard-sub">준비 중</div></div>
+          <div class="qcard-body">
+            <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>수압 자동 계산</div>
+            <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>보강재 자동 설계</div>
+            <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>BOQ 자동 생성</div>
+          </div>
+          <div class="qcard-foot"><button class="qcard-btn wip" onclick="event.stopPropagation()">준비 중</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="foot-logo">K-VAEL</div>
+    <div class="foot-desc">스마트 플랜트 엔지니어링 플랫폼 | AI 기반 자동 견적 시스템</div>
+    <div class="foot-links">
+      <a onclick="showPage('about')">회사 소개</a>
+      <a onclick="showPage('services')">사업 분야</a>
+      <a onclick="showPage('quote-round')">AI 견적</a>
+      <a onclick="showPage('support')">고객 지원</a>
+    </div>
+    <div class="foot-copy">
+      © 2026 K-VAEL. All rights reserved.<br>
+      <span style="font-size:.75rem;color:#555;margin-top:4px;display:block">본 견적 시스템의 결과물은 예비 산출가이며, 계약 및 시공의 법적 근거로 사용될 수 없습니다.</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════ ABOUT ══════════════ -->
+<div id="about" class="page">
+  <div style="padding-top:64px;min-height:100vh;background:#fff">
+    <div class="section">
+      <div class="section-inner">
+        <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+        <div class="sec-tag">About</div>
+        <h2 class="sec-title">회사 소개</h2>
+        <p class="sec-desc" style="margin-bottom:2rem">K-VAEL은 플랜트 엔지니어링과 AI 기술을 결합하여 복잡한 설계·견적 프로세스를 자동화하는 엔지니어링 인텔리전스 플랫폼입니다.</p>
+        <div class="svc-grid">
+          <div class="svc-card"><div class="svc-icon">⚡</div><div class="svc-title">신속성</div><div class="svc-desc">도면 업로드부터 견적서 이메일 발송까지 몇 분 안에 완성.</div></div>
+          <div class="svc-card"><div class="svc-icon">🎯</div><div class="svc-title">정확성</div><div class="svc-desc">API 650 1-Foot Method 기반 공학 계산으로 신뢰할 수 있는 결과.</div></div>
+          <div class="svc-card"><div class="svc-icon">🤖</div><div class="svc-title">AI 검토</div><div class="svc-desc">Claude AI가 두께 적정성과 금액 합리성을 2차 검증.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SERVICES ══════════════ -->
+<div id="services" class="page">
+  <div style="padding-top:64px;min-height:100vh;background:#FAFAFC">
+    <div class="section">
+      <div class="section-inner">
+        <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+        <div class="sec-tag">Services</div>
+        <h2 class="sec-title">사업 분야</h2>
+        <p class="sec-desc">K-VAEL이 제공하는 엔지니어링 서비스입니다.</p>
+        <div class="svc-grid" style="margin-top:40px">
+          <div class="svc-card"><div class="svc-icon">🏭</div><div class="svc-title">탱크 엔지니어링</div><div class="svc-desc">원형·사각 저장탱크 설계 및 제작. API 650 기준 두께 계산, 자재·가공·인건비 BOQ 자동 산출. 공장/현장 제작 판별 자동화.</div><span class="svc-badge">AI 견적 지원</span></div>
+          <div class="svc-card"><div class="svc-icon">🔧</div><div class="svc-title">배관 공사</div><div class="svc-desc">산업 플랜트 배관 설계·시공. 재질 선정, 용접 사양, 공수 계산 자동화 예정.</div><span class="svc-badge">준비 중</span></div>
+          <div class="svc-card"><div class="svc-icon">🌿</div><div class="svc-title">환경 설비</div><div class="svc-desc">폐수처리, 대기오염방지, UASB 혐기성 소화 시스템 설계 및 운영 지원.</div><span class="svc-badge">준비 중</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SUPPORT ══════════════ -->
+<div id="support" class="page">
+  <div style="padding-top:64px;min-height:100vh;background:#FAFAFC">
+    <div class="section">
+      <div class="section-inner">
+        <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+        <div class="sec-tag">Support</div>
+        <h2 class="sec-title">고객 지원</h2>
+        <p class="sec-desc">견적 및 엔지니어링 관련 문의를 도와드립니다.</p>
+        <div class="sup-grid">
+          <div class="sup-card"><div class="sup-icon">📧</div><div class="sup-title">이메일 문의</div><div class="sup-desc">견적 및 기술 문의는 이메일로 연락해 주세요. 빠른 시간 내 답변 드립니다.</div></div>
+          <div class="sup-card"><div class="sup-icon">🤖</div><div class="sup-title">AI 견적 시스템</div><div class="sup-desc">원형 탱크 견적은 AI 견적 시스템을 통해 즉시 받아보실 수 있습니다.</div></div>
+          <div class="sup-card"><div class="sup-icon">📞</div><div class="sup-title">전화 문의</div><div class="sup-desc">긴급한 사항은 전화로 문의해 주세요. 상세 내용 준비 중입니다.</div></div>
+          <div class="sup-card"><div class="sup-icon">📌</div><div class="sup-title">FAQ</div><div class="sup-desc">자주 묻는 질문과 답변을 준비 중입니다. 곧 업데이트될 예정입니다.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WIP ══════════════ -->
+<div id="wip" class="page">
+  <div class="wip-wrap">
+    <div class="wip-icon">🔨</div>
+    <div class="wip-title">작업 중인 페이지입니다</div>
+    <div class="wip-desc">더 나은 서비스를 위해 열심히 준비 중입니다.<br>조금만 기다려 주세요!</div>
+    <button class="wip-back" onclick="showPage('home')">← 홈으로 돌아가기</button>
+  </div>
+</div>
+
+<!-- ══════════════ 원형 탱크 견적 ══════════════ -->
+<div id="quote-round" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner">
+
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">원형 탱크 AI 견적 시스템</div>
+    <div class="qp-sub">K-VAEL · API 650 기준 · 공학식 / 수동 / AI 산출 · 엑셀 BOQ + 설계 보고서 자동 발송</div>
+  </div>
+
+  <!-- 면책 -->
+  <div class="notice-bar">
+    ⚠ 본 산출 결과는 <strong>예비(Budgetary) 견적 참고용</strong>이며 계약·시공의 법적 근거로 사용할 수 없습니다.
+    최종 금액 및 두께는 K-VAEL의 공식 강도 계산 및 도면 승인 완료 후 확정됩니다.
+  </div>
+
+  <!-- 고객 정보 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a5fad"></div>고객 정보</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>회사명</label><input type="text" id="company" placeholder="(주)고객사명"></div>
+        <div class="field"><label>담당자명</label><input type="text" id="contact" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (견적서 수신)</label><input type="email" id="email" placeholder="email@company.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF 업로드 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>도면 업로드 (선택) — PDF 업로드 시 치수 자동 인식</div>
+    <div class="fcard-body">
+      <div class="upload-zone" id="upload_zone"
+           onclick="document.getElementById('pdf_input').click()"
+           ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="dropFile(event)">
+        <div class="upload-icon" id="upload_icon">📄</div>
+        <div class="upload-title" id="upload_title">도면 PDF를 여기에 드래그하거나 클릭하여 업로드</div>
+        <div class="upload-sub" id="upload_sub">Claude AI가 직경·높이·두께·형태를 자동으로 읽어옵니다 · 최대 20MB</div>
+      </div>
+      <input type="file" id="pdf_input" accept=".pdf" style="display:none" onchange="handlePDF(this.files[0])">
+
+      <div id="scan_warn" style="display:none;margin-top:10px;background:#fff5eb;border:1px solid #edb87a;border-left:3px solid #b85c00;border-radius:8px;padding:10px 14px;font-size:12px;color:#b85c00;line-height:1.7">
+        ⚠ <strong>스캔 PDF로 감지되었습니다.</strong> 출력본을 스캔한 경우 치수 인식 정확도가 낮을 수 있습니다.<br>
+        아래 인식 결과를 반드시 확인하시고, 정확하지 않은 항목은 <strong>고객이 직접 입력해 주세요!</strong>
+      </div>
+
+      <div class="pdf-result" id="pdf_result">
+        <div class="pdf-result-hdr" id="pdf_result_hdr">✅ Claude가 도면에서 읽어온 정보</div>
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">치수</div>
+        <div class="pdf-dims" style="margin-bottom:12px">
+          <div class="pdf-dim"><div class="pdf-dim-label">직경 D</div><div class="pdf-dim-val" id="pdf_dia">—</div></div>
+          <div class="pdf-dim"><div class="pdf-dim-label">높이 H</div><div class="pdf-dim-val" id="pdf_ht">—</div></div>
+          <div class="pdf-dim"><div class="pdf-dim-label">신뢰도</div><div class="pdf-dim-val" id="pdf_conf" style="font-size:12px">—</div></div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">두께</div>
+        <div class="pdf-dims" style="margin-bottom:12px">
+          <div class="pdf-dim"><div class="pdf-dim-label">Bottom</div><div class="pdf-dim-val" id="pdf_t_bot">—</div></div>
+          <div class="pdf-dim"><div class="pdf-dim-label">Shell</div><div class="pdf-dim-val" id="pdf_t_shell">—</div></div>
+          <div class="pdf-dim"><div class="pdf-dim-label">Roof</div><div class="pdf-dim-val" id="pdf_t_roof">—</div></div>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">탱크 형태</div>
+        <div style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+          <div style="font-size:20px" id="pdf_shape_icon">—</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--primary)" id="pdf_shape_name">—</div>
+            <div style="font-size:11px;color:var(--text2)" id="pdf_shape_conf">—</div>
+          </div>
+        </div>
+        <div class="pdf-note" id="pdf_note"></div>
+        <div id="pdf_manual_guide" style="display:none;margin-top:8px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:6px;padding:8px 12px;font-size:11px;color:var(--primary);line-height:1.7">
+          ℹ <strong>인식 신뢰도가 낮은 항목 — 직접 확인 후 수정해 주세요:</strong><br>
+          <span id="pdf_manual_list"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탱크 사양 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>탱크 기본 사양 — 재질·유체는 직접 입력</div>
+    <div class="fcard-body">
+      <div class="g4">
+        <div class="field"><label>탱크 형태</label>
+          <select id="shape" onchange="calc()">
+            <option value="flat">Flat Bottom + Cone Roof</option>
+            <option value="hopper">Hopper Bottom</option>
+            <option value="dished">Dished Head</option>
+          </select>
+        </div>
+        <div class="field"><label>직경 D (m)</label><input type="number" id="dia" value="3.5" step="0.1" oninput="calc()"></div>
+        <div class="field"><label>높이 H (m)</label><input type="number" id="ht" value="5.0" step="0.1" oninput="calc()"></div>
+        <div class="field"><label>재질</label>
+          <select id="mat" onchange="calc()">
+            <option value="SS275">SS275 (SS400)</option>
+            <option value="STS304" selected>STS304</option>
+            <option value="STS316L">STS316L</option>
+          </select>
+        </div>
+      </div>
+      <div class="g4" style="margin-top:10px">
+        <div class="field"><label>유체 종류</label>
+          <select id="fluid" onchange="setFluid()">
+            <option value="water">물 (Water)</option>
+            <option value="ww">폐수 (Wastewater)</option>
+            <option value="chem">화학약품</option>
+            <option value="slurry">슬러지</option>
+            <option value="custom">직접 입력</option>
+          </select>
+        </div>
+        <div class="field"><label>유체 비중 G</label><input type="number" id="sg" value="1.00" step="0.05" oninput="calc()"></div>
+        <div class="field"><label>운전 압력 (kPa)</label><input type="number" id="press" value="0" step="1" oninput="calc()"></div>
+        <div class="field"><label>부식여유 CA (mm)</label><input type="number" id="ca" value="1.0" step="0.5" oninput="calc()"></div>
+      </div>
+      <div class="fab shop" id="fab_banner">
+        <span class="fab-icon">🏭</span>
+        <div>
+          <strong id="fab_title">공장 제작 (Shop Fabrication)</strong>
+          <span id="fab_desc">직경 ≤ 4m — 공장 완성 후 운송 가능, 단가 안정적</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 두께 3열 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a7a40"></div>두께 산출 — 공학식 / 수동입력 / AI 검토</div>
+    <div class="fcard-body">
+      <div class="thick-hdr">
+        <span></span>
+        <span class="eng-h">공학식 (API 650)</span>
+        <span>수동 입력</span>
+        <span class="ai-h">AI 검토 (Claude)</span>
+      </div>
+      <div id="thick_table"></div>
+    </div>
+  </div>
+
+  <!-- 자재 단가 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b85c00"></div>자재 단가 (원/kg) — 직접 수정 가능</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>SS275 단가</label><input type="text" id="p_ss_d" value="1,100" oninput="syncP('p_ss_d','p_ss')" onfocus="this.select()"><input type="hidden" id="p_ss" value="1100"></div>
+        <div class="field"><label>STS304 단가</label><input type="text" id="p_304_d" value="3,800" oninput="syncP('p_304_d','p_304')" onfocus="this.select()"><input type="hidden" id="p_304" value="3800"></div>
+        <div class="field"><label>STS316L 단가</label><input type="text" id="p_316_d" value="5,500" oninput="syncP('p_316_d','p_316')" onfocus="this.select()"><input type="hidden" id="p_316" value="5500"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOQ -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b52020"></div>BOQ 비용 산출</div>
+    <div class="fcard-body">
+      <div class="boq-sec">1-1 Material Costs</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">Roof Plate</div><div class="boq-val" id="c_roof">—</div><div class="boq-sub" id="s_roof">—</div></div>
+        <div class="boq-item"><div class="boq-label">Shell Plate</div><div class="boq-val" id="c_shell">—</div><div class="boq-sub" id="s_shell">—</div></div>
+        <div class="boq-item"><div class="boq-label">Bottom Plate</div><div class="boq-val" id="c_bot">—</div><div class="boq-sub" id="s_bot">—</div></div>
+        <div class="boq-item"><div class="boq-label">Nozzles &amp; Flanges</div><div class="boq-val" id="c_noz">—</div><div class="boq-sub">10K FF Flange</div></div>
+        <div class="boq-item"><div class="boq-label">Reinforcement</div><div class="boq-val" id="c_reinf">—</div><div class="boq-sub" id="s_reinf">—</div></div>
+        <div class="boq-item"><div class="boq-label">MISC + CONSUMABLE</div><div class="boq-val" id="c_misc">—</div><div class="boq-sub">잡자재 + 소모품</div></div>
+      </div>
+      <div class="boq-sec">1-2 Machining Costs</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">Bending / Rolling</div><div class="boq-val" id="c_bend">—</div></div>
+        <div class="boq-item"><div class="boq-label">Laser / Plasma Cutting</div><div class="boq-val" id="c_cut">—</div></div>
+        <div class="boq-item"><div class="boq-label">Surface Treatment</div><div class="boq-val" style="color:var(--text3);font-size:12px">옵션 · 별도 협의</div></div>
+      </div>
+      <div class="boq-sec">1-3 Labor Costs (M/D · 노무비 280,000 + 경비 50,000 = 330,000원)</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">Fabrication Labor</div><div class="boq-val" id="c_fab_l">—</div><div class="boq-sub" id="s_fab_md">—</div></div>
+        <div class="boq-item"><div class="boq-label">Welding Labor</div><div class="boq-val" id="c_weld">—</div><div class="boq-sub" id="s_weld_md">—</div></div>
+        <div class="boq-item"><div class="boq-label">Assistant Labor</div><div class="boq-val" id="c_assist">—</div><div class="boq-sub" id="s_assist_md">—</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="sub-rows">
+        <div class="sub-row"><span class="lbl">자재비 소계 (Material)</span><span class="val" id="sub_mat">—</span></div>
+        <div class="sub-row"><span class="lbl">가공비 소계 (Machining)</span><span class="val" id="sub_fab">—</span></div>
+        <div class="sub-row"><span class="lbl">노무비 소계 (Labor)</span><span class="val" id="sub_lab">—</span></div>
+      </div>
+      <div class="total-bar">
+        <div class="total-label">총 견적금액 (VAT 별도)</div>
+        <div class="total-val" id="grand">—</div>
+      </div>
+      <div class="cc-grid">
+        <div class="cc-item"><div class="cc-label">총 중량</div><div class="cc-val" id="cc_wt">—</div></div>
+        <div class="cc-item"><div class="cc-label">단가 (원/m³)</div><div class="cc-val" id="cc_vol">—</div></div>
+        <div class="cc-item"><div class="cc-label">단가 (원/kg)</div><div class="cc-val" id="cc_kg">—</div></div>
+      </div>
+      <div class="ai-box">
+        <div class="ai-box-title">🤖 AI 검토 의견 (Claude)</div>
+        <div class="ai-box-body" id="ai_comment">파라미터를 입력하면 Claude가 두께 적정성 및 금액 합리성을 검토합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="fbtn-wrap">
+    <button class="fbtn fbtn-reset" onclick="resetForm()">↺ 초기화</button>
+    <button class="fbtn fbtn-print" onclick="window.print()">🖨 인쇄/PDF</button>
+    <button class="fbtn fbtn-submit" onclick="submitQuote()">📧 견적서 생성 및 이메일 발송</button>
+  </div>
+  <div style="height:36px"></div>
+
+</div><!-- /quote-page-inner -->
+</div><!-- /quote-page-wrap -->
+</div><!-- /quote-round page -->
+
+<!-- ══════════════ JS ══════════════ -->
+<script>
+// ── Flask 서버 URL (배포 후 실제 주소로 교체) ──
+const FLASK_URL = 'https://api.kvael.co.kr';
+
+// ── 페이지 전환 ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(name);
+  if (target) { target.classList.add('active'); window.scrollTo(0,0); }
+  closeDropdown();
+  const menu = document.getElementById('mobile_menu');
+  if (menu) menu.classList.remove('open');
+}
+
+// ── 드롭다운 ──
+function toggleDropdown() {
+  const dd  = document.getElementById('quote-dropdown');
+  const btn = document.getElementById('quote-nav-btn');
+  const isOpen = dd.classList.contains('open');
+  closeDropdown();
+  if (!isOpen) {
+    dd.classList.add('open');
+    btn.classList.add('open');
+  }
+}
+function closeDropdown() {
+  document.getElementById('quote-dropdown').classList.remove('open');
+  document.getElementById('quote-nav-btn').classList.remove('open');
+}
+// 외부 클릭 시 드롭다운 + 모바일메뉴 닫기
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-item')) closeDropdown();
+  if (!e.target.closest('.mobile-menu') && !e.target.closest('.hamburger')) closeMenu();
+});
+
+// ── 모바일 메뉴 ──
+function toggleMenu() {
+  const menu = document.getElementById('mobile_menu');
+  menu.classList.toggle('open');
+}
+function closeMenu() {
+  const menu = document.getElementById('mobile_menu');
+  if (menu) menu.classList.remove('open');
+}
+
+// ── 견적 계산 상수 ──
+const MD = 330000;
+const SHELLS = ['BOTTOM','SHELL-1','SHELL-2','SHELL-3','SHELL-4','SHELL-5','SHELL-6','SHELL-7','ROOF'];
+const won = n => Math.round(n).toLocaleString('ko-KR') + '원';
+const fkg = n => Math.round(n).toLocaleString('ko-KR') + 'kg';
+const raw = n => Math.round(n).toLocaleString('ko-KR');
+
+function syncP(dId, hId) {
+  const el = document.getElementById(dId);
+  const num = parseInt(el.value.replace(/[^0-9]/g,'')) || 0;
+  el.value = num.toLocaleString('ko-KR');
+  document.getElementById(hId).value = num;
+  calc();
+}
+
+function setFluid() {
+  const map = {water:1.00, ww:1.05, chem:1.20, slurry:1.15};
+  const f = document.getElementById('fluid').value;
+  if (map[f] !== undefined) document.getElementById('sg').value = map[f];
+  calc();
+}
+
+function getCommTh(t) {
+  for (let s of [5,6,8,10,12,14,16,19,22,25,28,32]) if (t <= s) return s;
+  return Math.ceil(t);
+}
+
+// ── PDF 처리 ──
+function dragOver(e) { e.preventDefault(); document.getElementById('upload_zone').classList.add('drag'); }
+function dragLeave()  { document.getElementById('upload_zone').classList.remove('drag'); }
+function dropFile(e)  { e.preventDefault(); dragLeave(); handlePDF(e.dataTransfer.files[0]); }
+
+async function handlePDF(file) {
+  if (!file || file.type !== 'application/pdf') { alert('PDF 파일만 업로드 가능합니다.'); return; }
+  const zone = document.getElementById('upload_zone');
+  document.getElementById('upload_icon').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('upload_title').textContent = 'Claude AI가 도면 분석 중...';
+  document.getElementById('upload_sub').textContent = '치수·두께·형태를 읽고 있습니다. 잠시만 기다려 주세요';
+  zone.classList.remove('done');
+  document.getElementById('scan_warn').style.display = 'none';
+  document.getElementById('pdf_result').style.display = 'none';
+  document.getElementById('pdf_manual_guide').style.display = 'none';
+  try {
+    const b64 = await fileToBase64(file);
+    // Flask 서버를 통해 Claude API 호출 (API 키 보호)
+    const res = await fetch(FLASK_URL + '/api/analyze-pdf', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({pdf_base64: b64})
+    });
+    const r = await res.json();
+    if (!r.found) throw new Error('도면에서 탱크 정보를 찾지 못했습니다. 직접 입력해 주세요.');
+    if (r.is_scanned) document.getElementById('scan_warn').style.display = 'block';
+    if (r.diameter_m) document.getElementById('dia').value = r.diameter_m;
+    if (r.height_m)   document.getElementById('ht').value  = r.height_m;
+    if (r.shape && r.shape !== 'unknown') document.getElementById('shape').value = r.shape;
+    if (r.thickness_bottom_mm) { const el=document.getElementById('m_BOTTOM'); if(el) el.value=r.thickness_bottom_mm; }
+    if (r.thickness_shell_mm)  { for(let i=1;i<=7;i++){const el=document.getElementById('m_SHELL-'+i);if(el)el.value=r.thickness_shell_mm;} }
+    if (r.thickness_roof_mm)   { const el=document.getElementById('m_ROOF'); if(el) el.value=r.thickness_roof_mm; }
+    const cl = c => c==='high'?'✅ 높음':c==='medium'?'⚠ 보통':c==='low'?'❓ 낮음':'— 미확인';
+    const sm = {flat:'평바닥+Cone Roof',hopper:'Hopper Bottom',dished:'경판(Dished Head)',unknown:'불명확'};
+    const si = {flat:'🏛',hopper:'🔽',dished:'🫙',unknown:'❓'};
+    document.getElementById('pdf_dia').textContent    = r.diameter_m ? r.diameter_m+'m ('+cl(r.diameter_conf)+')' : '미확인 — 직접 입력해 주세요';
+    document.getElementById('pdf_ht').textContent     = r.height_m   ? r.height_m+'m ('+cl(r.height_conf)+')' : '미확인 — 직접 입력해 주세요';
+    document.getElementById('pdf_conf').textContent   = cl(r.confidence_overall);
+    document.getElementById('pdf_t_bot').textContent  = r.thickness_bottom_mm ? r.thickness_bottom_mm+'mm' : '미확인';
+    document.getElementById('pdf_t_shell').textContent= r.thickness_shell_mm  ? r.thickness_shell_mm+'mm'  : '미확인';
+    document.getElementById('pdf_t_roof').textContent = r.thickness_roof_mm   ? r.thickness_roof_mm+'mm'   : '미확인';
+    document.getElementById('pdf_shape_icon').textContent = si[r.shape]||'❓';
+    document.getElementById('pdf_shape_name').textContent = sm[r.shape]||'미확인';
+    document.getElementById('pdf_shape_conf').textContent = cl(r.shape_conf)+(r.shape_reason?' · '+r.shape_reason:'');
+    document.getElementById('pdf_note').textContent   = r.note||'';
+    const low=[];
+    if(!r.diameter_m||r.diameter_conf==='low') low.push('직경 D');
+    if(!r.height_m||r.height_conf==='low')     low.push('높이 H');
+    if(!r.thickness_bottom_mm)                 low.push('두께');
+    if(!r.shape||r.shape==='unknown')          low.push('탱크 형태');
+    if(low.length){document.getElementById('pdf_manual_list').textContent=low.join(', ');document.getElementById('pdf_manual_guide').style.display='block';}
+    document.getElementById('pdf_result').style.display = 'block';
+    document.getElementById('pdf_result_hdr').textContent = r.is_scanned ? '⚠ 스캔 PDF — 반드시 확인 후 수정해 주세요' : '✅ Claude가 도면에서 읽어온 정보';
+    zone.classList.add('done');
+    document.getElementById('upload_icon').textContent = r.is_scanned ? '⚠' : '✅';
+    document.getElementById('upload_title').textContent = file.name + (r.is_scanned?' — 스캔 PDF (정확도 낮을 수 있음)':' — 인식 완료');
+    const pts=[];
+    if(r.diameter_m) pts.push('직경 '+r.diameter_m+'m');
+    if(r.height_m)   pts.push('높이 '+r.height_m+'m');
+    document.getElementById('upload_sub').textContent = pts.length ? pts.join(' · ')+' 자동 입력됨' : '일부 항목만 인식됨';
+    calc();
+  } catch(err) {
+    document.getElementById('upload_icon').textContent = '⚠';
+    document.getElementById('upload_title').textContent = '인식 실패 — 직접 입력해 주세요';
+    document.getElementById('upload_sub').textContent = err.message||'오류가 발생했습니다.';
+  }
+}
+function fileToBase64(f) {
+  return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('파일 읽기 실패'));r.readAsDataURL(f);});
+}
+
+// ── 계산 ──
+function calc() {
+  const D    = parseFloat(document.getElementById('dia').value)  || 0;
+  const H    = parseFloat(document.getElementById('ht').value)   || 0;
+  const mat  = document.getElementById('mat').value;
+  const sg   = parseFloat(document.getElementById('sg').value)   || 1;
+  const ca   = parseFloat(document.getElementById('ca').value)   || 0;
+  const shape= document.getElementById('shape').value;
+  const pSS  = parseInt(document.getElementById('p_ss').value)   || 1100;
+  const p304 = parseInt(document.getElementById('p_304').value)  || 3800;
+  const p316 = parseInt(document.getElementById('p_316').value)  || 5500;
+  if (!D||!H) return;
+  let rho, uPrice;
+  if(mat==='SS275'){rho=7.85;uPrice=pSS;}
+  else if(mat==='STS304'){rho=7.93;uPrice=p304;}
+  else{rho=7.98;uPrice=p316;}
+  const isShop = D<=4.0;
+  document.getElementById('fab_banner').className = 'fab '+(isShop?'shop':'field');
+  document.getElementById('fab_title').textContent = isShop?'공장 제작 (Shop Fabrication)':'⚠ 현장 제작 (Field Erection) — 비용 상승';
+  document.getElementById('fab_desc').textContent  = isShop?'직경 '+D+'m ≤ 4m — 공장 완성 후 운송 가능, 단가 안정적':'직경 '+D+'m > 4m — 현장 조립 필요, 크레인·비계 포함으로 단가 상승';
+  const S=137,E=0.85,shellH=H/7;
+  const eng={};
+  eng['BOTTOM']=getCommTh(Math.max(6+ca,5+ca));
+  for(let i=1;i<=7;i++){const hFB=H-i*shellH;let t=(4.9*D*(Math.max(hFB-0.3,0))*sg)/(S*E)+ca;const am=D>60?10:D>36?8:D>15?6:5;eng['SHELL-'+i]=getCommTh(Math.max(t,am+ca));}
+  eng['ROOF']=getCommTh(6+ca);
+  const ai={...eng};
+  renderThick(eng,ai);
+  const aBase=Math.PI*D*D/4,aShell=Math.PI*D*H,aRoof=aBase*(shape==='flat'?1.1:shape==='hopper'?1.4:1.3),vol=aBase*H,LOSS=1.20;
+  const tBot=(eng['BOTTOM']||6)/1000,tRoof=(eng['ROOF']||6)/1000;
+  let tSum=0;for(let i=1;i<=7;i++)tSum+=(eng['SHELL-'+i]||6);const tAvg=tSum/7/1000;
+  const wBot=aBase*tBot*rho*1000*LOSS,wShell=aShell*tAvg*rho*1000*LOSS,wRoof=aRoof*tRoof*rho*1000*LOSS,wReinf=(wBot+wShell+wRoof)*0.08,wTotal=wBot+wShell+wRoof+wReinf;
+  const cBot=wBot*uPrice,cShell=wShell*uPrice,cRoof=wRoof*uPrice,noz=Math.max(4,Math.round(D*2)),cNoz=noz*180000,cReinf=wReinf*uPrice,cMisc=wTotal*uPrice*0.04+wTotal*300,matSum=cBot+cShell+cRoof+cNoz+cReinf+cMisc;
+  const fRate=isShop?1800:3200,cx=shape==='flat'?1.0:shape==='hopper'?1.25:1.35,cBend=wTotal*fRate*0.55*cx,cCut=wTotal*fRate*0.45*cx,fabSum=cBend+cCut;
+  const lBase=wTotal*(isShop?3200:5500),mdT=Math.max(2,Math.round(lBase/MD)),mdF=Math.max(1,Math.round(mdT*0.4)),mdW=Math.max(1,Math.round(mdT*0.4)),mdA=Math.max(1,mdT-mdF-mdW),cFabL=mdF*MD,cWeld=mdW*MD,cAst=mdA*MD,labSum=cFabL+cWeld+cAst,grand=matSum+fabSum+labSum;
+  const set=(id,v)=>document.getElementById(id).textContent=v;
+  set('c_roof',won(cRoof));set('s_roof',mat+' '+eng['ROOF']+'T · '+fkg(wRoof));
+  set('c_shell',won(cShell));set('s_shell',mat+' avg.'+Math.round(tAvg*1000)+'T · '+fkg(wShell));
+  set('c_bot',won(cBot));set('s_bot',mat+' '+eng['BOTTOM']+'T · '+fkg(wBot));
+  set('c_noz',won(cNoz));set('c_reinf',won(cReinf));set('s_reinf',mat+' 찬넬/앵글 · '+fkg(wReinf));
+  set('c_misc',won(cMisc));set('c_bend',won(cBend));set('c_cut',won(cCut));
+  set('c_fab_l',won(cFabL));set('s_fab_md',mdF+' M/D x 330,000원');
+  set('c_weld',won(cWeld));set('s_weld_md',mdW+' M/D x 330,000원');
+  set('c_assist',won(cAst));set('s_assist_md',mdA+' M/D x 330,000원');
+  set('sub_mat',won(matSum));set('sub_fab',won(fabSum));set('sub_lab',won(labSum));
+  set('grand',won(grand));
+  set('cc_wt',fkg(Math.round(wTotal)));
+  set('cc_vol',raw(Math.round(grand/vol))+'원/m3');
+  set('cc_kg',raw(Math.round(grand/wTotal))+'원/kg');
+  const sm=Math.max(...[1,2,3,4,5,6,7].map(i=>eng['SHELL-'+i]));
+  set('ai_comment',['[두께 검토]','  BOTTOM '+eng['BOTTOM']+'mm / Shell 최대 '+sm+'mm / ROOF '+eng['ROOF']+'mm','  → API 650 1-Foot Method 기준 적정 범위 내.','','[제작방식]','  '+(isShop?'공장 제작 적용 — 단가 안정적.':'현장 제작 — 크레인.비계 포함. 공장 제작 분할 여부 검토 권장.'),'','[금액 검토]','  총 견적 '+won(grand)+'  (중량 '+fkg(Math.round(wTotal))+')','  '+raw(Math.round(grand/vol))+'원/m3 / '+raw(Math.round(grand/wTotal))+'원/kg','','※ 최종 검토는 K-VAEL 설계팀 확인 필수.'].join('\n'));
+}
+
+function renderThick(eng,ai){
+  document.getElementById('thick_table').innerHTML=SHELLS.map(n=>{
+    const ev=eng[n]||'-',av=ai[n]||'-';
+    const ex=document.getElementById('m_'+n);const mv=ex?ex.value:ev;
+    return`<div class="thick-row"><div class="thick-name">${n}</div><div class="thick-eng">${ev} mm</div><div class="thick-manual"><input type="number" id="m_${n}" value="${mv}" step="1" min="1" max="50" oninput="calc()"></div><div class="thick-ai">${av} mm<br><span style="font-size:10px;opacity:.7">API검토</span></div></div>`;
+  }).join('');
+}
+
+function resetForm(){
+  ['dia','ht','sg','press','ca'].forEach(id=>{const d={dia:'3.5',ht:'5.0',sg:'1.00',press:'0',ca:'1.0'};document.getElementById(id).value=d[id];});
+  document.getElementById('mat').selectedIndex=1;
+  document.getElementById('fluid').selectedIndex=0;
+  document.getElementById('shape').selectedIndex=0;
+  document.getElementById('pdf_result').style.display='none';
+  document.getElementById('scan_warn').style.display='none';
+  const z=document.getElementById('upload_zone');
+  z.classList.remove('done','drag');
+  document.getElementById('upload_icon').textContent='📄';
+  document.getElementById('upload_title').textContent='도면 PDF를 여기에 드래그하거나 클릭하여 업로드';
+  document.getElementById('upload_sub').textContent='Claude AI가 직경·높이·두께·형태를 자동으로 읽어옵니다 · 최대 20MB';
+  calc();
+}
+
+async function submitQuote(){
+  const company=document.getElementById('company').value.trim();
+  const contact=document.getElementById('contact').value.trim();
+  const email  =document.getElementById('email').value.trim();
+  if(!company||!contact||!email){alert('고객 정보(회사명, 담당자, 이메일)를 모두 입력해주세요.');return;}
+  const btn=document.querySelector('.fbtn-submit');
+  btn.textContent='⏳ 처리 중...';btn.disabled=true;
+  try{
+    const res=await fetch(FLASK_URL+'/api/quote',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        company,contact,email,
+        dia:document.getElementById('dia').value,
+        ht:document.getElementById('ht').value,
+        mat:document.getElementById('mat').value,
+        shape:document.getElementById('shape').value,
+        sg:document.getElementById('sg').value,
+        ca:document.getElementById('ca').value,
+        p_ss:document.getElementById('p_ss').value,
+        p_304:document.getElementById('p_304').value,
+        p_316:document.getElementById('p_316').value,
+      })
+    });
+    const d=await res.json();
+    if(d.success){alert('견적서가 '+email+' 으로 발송되었습니다!\n\n총 견적금액: '+d.grand.toLocaleString('ko-KR')+'원 (VAT 별도)');}
+    else{alert('오류: '+d.message);}
+  }catch(e){alert('서버 연결 실패: '+e.message+'\n\nFlask 서버가 실행 중인지 확인해 주세요.');}
+  finally{btn.textContent='📧 견적서 생성 및 이메일 발송';btn.disabled=false;}
+}
+
+window.onload=calc;
+</script>
+</body>
+</html>
