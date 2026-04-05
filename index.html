@@ -833,7 +833,8 @@ select option{background:#fff}
   <div class="fbtn-wrap">
     <button class="fbtn fbtn-reset" onclick="resetForm()">↺ 초기화</button>
     <button class="fbtn fbtn-print" onclick="window.print()">🖨 인쇄/PDF</button>
-    <button class="fbtn fbtn-submit" onclick="submitQuote()">📧 견적서 생성 및 이메일 발송</button>
+    <button class="fbtn fbtn-submit" id="btn-eng" onclick="submitQuote('engineering')">📧 공학식 기준 견적서 발송</button>
+    <button class="fbtn fbtn-submit" id="btn-ai" onclick="submitQuote('ai')" style="background:linear-gradient(135deg,#1a7a40,#1a5fad);display:none">🤖 AI 검토 기준 견적서 발송</button>
   </div>
   <div style="height:36px"></div>
 
@@ -957,6 +958,12 @@ async function requestAIReview() {
       commentEl.textContent = '【Claude AI 실무 검토 완료】\n\n' + data.comment +
         (data.grand_review ? '\n\n【AI 권고 견적금액】\n  ' + Math.round(data.grand_review).toLocaleString('ko-KR') + '원 (VAT 별도)' : '');
     }
+
+    // AI 견적서 버튼 표시
+    window._aiReviewData = data;
+    document.getElementById('btn-ai').style.display = 'flex';
+    document.getElementById('btn-eng').style.flex = '0 0 auto';
+    document.getElementById('btn-eng').style.fontSize = '12px';
 
     btn.style.background = 'linear-gradient(135deg,#1a5fad,#1a7a40)';
     btnText.textContent  = '✅ AI 검토 완료 — 다시 검토하려면 클릭';
@@ -1159,35 +1166,55 @@ function resetForm(){
   calc();
 }
 
-async function submitQuote(){
+async function submitQuote(mode='engineering'){
   const company=document.getElementById('company').value.trim();
   const contact=document.getElementById('contact').value.trim();
   const email  =document.getElementById('email').value.trim();
   if(!company||!contact||!email){alert('고객 정보(회사명, 담당자, 이메일)를 모두 입력해주세요.');return;}
-  const btn=document.querySelector('.fbtn-submit');
-  btn.textContent='⏳ 처리 중...';btn.disabled=true;
+
+  // AI 검토 기준일 때 데이터 확인
+  if(mode==='ai' && !window._aiReviewData){
+    alert('먼저 Claude AI 실무 검토를 완료해주세요.');return;
+  }
+
+  const btnId = mode==='ai' ? 'btn-ai' : 'btn-eng';
+  const btn = document.getElementById(btnId);
+  const origText = btn.textContent;
+  btn.textContent='⏳ 처리 중...'; btn.disabled=true;
+
   try{
+    const payload = {
+      company, contact, email,
+      dia:   document.getElementById('dia').value,
+      ht:    document.getElementById('ht').value,
+      mat:   document.getElementById('mat').value,
+      shape: document.getElementById('shape').value,
+      sg:    document.getElementById('sg').value,
+      ca:    document.getElementById('ca').value,
+      p_ss:  document.getElementById('p_ss').value,
+      p_304: document.getElementById('p_304').value,
+      p_316: document.getElementById('p_316').value,
+      mode:  mode,
+    };
+
+    // AI 검토 기준이면 AI 권고 데이터 추가
+    if(mode==='ai' && window._aiReviewData){
+      payload.ai_shell_review = window._aiReviewData.shell_review;
+      payload.ai_grand_review = window._aiReviewData.grand_review;
+    }
+
     const res=await fetch(FLASK_URL+'/api/quote',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        company,contact,email,
-        dia:document.getElementById('dia').value,
-        ht:document.getElementById('ht').value,
-        mat:document.getElementById('mat').value,
-        shape:document.getElementById('shape').value,
-        sg:document.getElementById('sg').value,
-        ca:document.getElementById('ca').value,
-        p_ss:document.getElementById('p_ss').value,
-        p_304:document.getElementById('p_304').value,
-        p_316:document.getElementById('p_316').value,
-      })
+      body:JSON.stringify(payload)
     });
     const d=await res.json();
-    if(d.success){alert('견적서가 '+email+' 으로 발송되었습니다!\n\n총 견적금액: '+d.grand.toLocaleString('ko-KR')+'원 (VAT 별도)');}
-    else{alert('오류: '+d.message);}
-  }catch(e){alert('서버 연결 실패: '+e.message+'\n\nFlask 서버가 실행 중인지 확인해 주세요.');}
-  finally{btn.textContent='📧 견적서 생성 및 이메일 발송';btn.disabled=false;}
+    if(d.success){
+      const modeLabel = mode==='ai' ? 'AI 검토 기준' : '공학식 기준';
+      alert(`[${modeLabel}] 견적서가 ${email} 으로 발송되었습니다!\n\n총 견적금액: ${d.grand.toLocaleString('ko-KR')}원 (VAT 별도)`);
+    } else { alert('오류: '+d.message); }
+  }catch(e){alert('서버 연결 실패: '+e.message);}
+  finally{btn.textContent=origText;btn.disabled=false;}
 }
 
 window.onload=function(){ /* 직경/높이 미입력 상태로 시작 */ };
