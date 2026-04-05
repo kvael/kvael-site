@@ -770,6 +770,18 @@ select option{background:#fff}
     </div>
   </div>
 
+  <!-- AI 검토 버튼 -->
+  <div style="margin-bottom:12px">
+    <button onclick="requestAIReview()" id="ai-review-btn"
+      style="width:100%;padding:14px;background:linear-gradient(135deg,#1a7a40,#1a5fad);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s">
+      <span>🤖</span>
+      <span id="ai-review-btn-text">Claude AI 실무 검토 요청</span>
+    </button>
+    <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">
+      API 650 공학식 결과를 실무 경험 기반으로 재검토합니다
+    </div>
+  </div>
+
   <!-- BOQ -->
   <div class="fcard">
     <div class="fcard-hdr"><div class="fdot" style="background:#b52020"></div>BOQ 비용 산출</div>
@@ -885,6 +897,76 @@ function selectShape(val) {
   const target = document.getElementById('shape-card-'+val);
   if(target) target.classList.add('active');
   calc();
+}
+
+// ── AI 검토 요청 ──
+async function requestAIReview() {
+  const D = parseFloat(document.getElementById('dia').value) || 0;
+  const H = parseFloat(document.getElementById('ht').value)  || 0;
+  if (!D || !H) { alert('직경과 높이를 먼저 입력해주세요.'); return; }
+
+  const btn     = document.getElementById('ai-review-btn');
+  const btnText = document.getElementById('ai-review-btn-text');
+  btn.disabled  = true;
+  btnText.textContent = '🤖 Claude AI 검토 중... (10~20초 소요)';
+  btn.style.opacity = '0.7';
+
+  // 현재 공학식 두께 수집
+  const shells = {};
+  const SHELLS = getShells();
+  SHELLS.forEach(n => {
+    const el = document.getElementById('thick-eng-' + n);
+    if (el) shells[n] = parseInt(el.textContent) || 0;
+  });
+
+  // 현재 견적금액
+  const grandEl = document.getElementById('grand');
+  const grand   = grandEl ? parseInt(grandEl.textContent.replace(/[^0-9]/g,'')) || 0 : 0;
+
+  try {
+    const res = await fetch(FLASK_URL + '/api/review', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        dia:    D,
+        ht:     H,
+        mat:    document.getElementById('mat').value,
+        sg:     parseFloat(document.getElementById('sg').value) || 1.0,
+        ca:     parseFloat(document.getElementById('ca').value) || 1.0,
+        shape:  document.getElementById('shape').value,
+        shells: shells,
+        grand:  grand
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || '검토 실패');
+
+    // AI 검토 두께 반영
+    const sr = data.shell_review || {};
+    Object.keys(sr).forEach(key => {
+      const el = document.getElementById('ai-' + key);
+      if (el) {
+        el.textContent = sr[key] + ' mm';
+        el.style.color = sr[key] > (shells[key]||0) ? '#b85c00' : '#1a7a40';
+      }
+    });
+
+    // AI 검토 의견 반영
+    const commentEl = document.getElementById('ai_comment');
+    if (commentEl && data.comment) {
+      commentEl.textContent = '【Claude AI 실무 검토 완료】\n\n' + data.comment +
+        (data.grand_review ? '\n\n【AI 권고 견적금액】\n  ' + Math.round(data.grand_review).toLocaleString('ko-KR') + '원 (VAT 별도)' : '');
+    }
+
+    btn.style.background = 'linear-gradient(135deg,#1a5fad,#1a7a40)';
+    btnText.textContent  = '✅ AI 검토 완료 — 다시 검토하려면 클릭';
+  } catch(e) {
+    alert('AI 검토 실패: ' + e.message);
+    btnText.textContent = '🤖 Claude AI 실무 검토 요청';
+  } finally {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
 }
 
 // ── 견적 계산 상수 ──
@@ -1018,7 +1100,7 @@ function calc() {
   const S=137,E=0.85,shellH=H/shellCnt;
   const eng={};
   eng['BOTTOM']=getCommTh(Math.max(6+ca,5+ca));
-  for(let i=1;i<=shellCnt;i++){const hFB=H-i*shellH;let t=(4.9*D*(Math.max(hFB-0.3,0))*sg)/(S*E)+ca;const am=D>60?10:D>36?8:D>15?6:5;eng['SHELL-'+i]=getCommTh(Math.max(t,am+ca));}
+  for(let i=1;i<=shellCnt;i++){const hFB=H-(shellCnt-i)*shellH;let t=(4.9*D*(Math.max(hFB-0.3,0))*sg)/(S*E)+ca;const am=D>61?10:D>36.6?8:D>15.2?6:5;eng['SHELL-'+i]=getCommTh(Math.max(t,am+ca));}
   eng['ROOF']=getCommTh(6+ca);
   const ai={...eng};
   renderThick(eng,ai,SHELLS);
@@ -1056,7 +1138,7 @@ function renderThick(eng,ai,SHELLS){
   document.getElementById('thick_table').innerHTML=SHELLS.map(n=>{
     const ev=eng[n]||'-',av=ai[n]||'-';
     const ex=document.getElementById('m_'+n);const mv=ex?ex.value:ev;
-    return`<div class="thick-row"><div class="thick-name">${n}</div><div class="thick-eng">${ev} mm</div><div class="thick-manual"><input type="number" id="m_${n}" value="${mv}" step="1" min="1" max="50" oninput="calc()"></div><div class="thick-ai">${av} mm<br><span style="font-size:10px;opacity:.7">API검토</span></div></div>`;
+    return`<div class="thick-row"><div class="thick-name">${n}</div><div class="thick-eng" id="thick-eng-${n}">${ev} mm</div><div class="thick-manual"><input type="number" id="m_${n}" value="${mv}" step="1" min="1" max="50" oninput="calc()"></div><div class="thick-ai" id="ai-${n}">${av} mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span></div></div>`;
   }).join('');
 }
 
