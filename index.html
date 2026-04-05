@@ -1138,7 +1138,7 @@ function renderThick(eng,ai,SHELLS){
   document.getElementById('thick_table').innerHTML=SHELLS.map(n=>{
     const ev=eng[n]||'-',av=ai[n]||'-';
     const ex=document.getElementById('m_'+n);const mv=ex?ex.value:ev;
-    return`<div class="thick-row"><div class="thick-name">${n}</div><div class="thick-eng" id="thick-eng-${n}">${ev} mm</div><div class="thick-manual"><input type="number" id="m_${n}" value="${mv}" step="1" min="1" max="50" oninput="calc()"></div><div class="thick-ai" id="ai-${n}">${av} mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span></div></div>`;
+    return`<div class="thick-row"><div class="thick-name">${n}</div><div class="thick-eng" id="thick-eng-${n}">${ev} mm</div><div class="thick-manual" style="position:relative"><input type="number" id="m_${n}" value="${mv}" step="1" min="1" max="50" oninput="calc()" style="padding-right:30px"><span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text3);pointer-events:none">mm</span></div><div class="thick-ai" id="ai-${n}">${av} mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span></div></div>`;
   }).join('');
 }
 
