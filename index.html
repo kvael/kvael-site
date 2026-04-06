@@ -1107,6 +1107,14 @@ select option{background:#fff}
         </div>
         <div style="font-size:11px;color:var(--text3);margin-top:8px">ℹ 기본: 앵글(Angle) / AI 검토 시 찬넬(Channel) 여부 자동 판단</div>
       </div>
+
+      <!-- AI 검토 버튼 -->
+      <div style="margin-top:12px">
+        <button style="width:100%;padding:14px;background:linear-gradient(135deg,#1a7a40,#1a5fad);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s" onclick="sqRequestAIReview()" id="sq-ai-review-btn">
+          <span>🤖</span><span id="sq-ai-review-btn-text">Claude AI 실무 검토 요청</span>
+        </button>
+        <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">두께·보강재 적정성 및 금액을 실무 경험 기반으로 재검토합니다</div>
+      </div>
     </div>
   </div>
 
@@ -1158,13 +1166,7 @@ select option{background:#fff}
     </div>
   </div>
 
-  <!-- AI 검토 버튼 -->
-  <div style="margin-bottom:12px">
-    <button style="width:100%;padding:14px;background:linear-gradient(135deg,#1a7a40,#1a5fad);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s" onclick="sqRequestAIReview()" id="sq-ai-review-btn">
-      <span>🤖</span><span id="sq-ai-review-btn-text">Claude AI 실무 검토 요청</span>
-    </button>
-    <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">두께·보강재 적정성 및 금액을 실무 경험 기반으로 재검토합니다</div>
-  </div>
+
 
   <!-- 발송 버튼 -->
   <div class="fbtn-wrap">
