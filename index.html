@@ -721,6 +721,41 @@ select option{background:#fff}
           <span id="fab_desc">직경 ≤ 4m — 공장 완성 후 운송 가능, 단가 안정적</span>
         </div>
       </div>
+
+      <!-- 페인트 옵션 -->
+      <div style="margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">🎨 페인트 (에폭시) 옵션</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px">외부 페인트</label>
+            <div style="display:flex;gap:12px;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="paint_ext" value="yes" id="paint_ext_yes" onchange="calc()">
+                <span>포함</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="paint_ext" value="no" id="paint_ext_no" onchange="calc()" checked>
+                <span>제외</span>
+              </label>
+            </div>
+            <div style="font-size:11px;color:var(--text3)">외부 면적 × 6회 × 30,000원/회</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px">내부 페인트</label>
+            <div style="display:flex;gap:12px;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="paint_int" value="yes" id="paint_int_yes" onchange="calc()">
+                <span>포함</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="paint_int" value="no" id="paint_int_no" onchange="calc()" checked>
+                <span>제외</span>
+              </label>
+            </div>
+            <div style="font-size:11px;color:var(--text3)">내부 면적 × 6회 × 30,000원/회</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -795,6 +830,13 @@ select option{background:#fff}
         <div class="boq-item"><div class="boq-label">Reinforcement</div><div class="boq-val" id="c_reinf">—</div><div class="boq-sub" id="s_reinf">—</div></div>
         <div class="boq-item"><div class="boq-label">MISC + CONSUMABLE</div><div class="boq-val" id="c_misc">—</div><div class="boq-sub">잡자재 + 소모품</div></div>
       </div>
+      <div class="boq-sec">1-4 Surface Treatment (페인트)</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">외부 에폭시 페인트</div><div class="boq-val" id="c_paint_ext">—</div><div class="boq-sub" id="s_paint_ext">제외</div></div>
+        <div class="boq-item"><div class="boq-label">내부 에폭시 페인트</div><div class="boq-val" id="c_paint_int">—</div><div class="boq-sub" id="s_paint_int">제외</div></div>
+        <div class="boq-item"><div class="boq-label">페인트 합계</div><div class="boq-val" id="c_paint_total">—</div><div class="boq-sub">6회 × 30,000원/회</div></div>
+      </div>
+
       <div class="boq-sec">1-2 Machining Costs</div>
       <div class="boq-grid">
         <div class="boq-item"><div class="boq-label">Bending / Rolling</div><div class="boq-val" id="c_bend">—</div></div>
@@ -1107,11 +1149,25 @@ function calc() {
   document.getElementById('fab_banner').className = 'fab '+(isShop?'shop':'field');
   document.getElementById('fab_title').textContent = isShop?'공장 제작 (Shop Fabrication)':'⚠ 현장 제작 (Field Erection) — 비용 상승';
   document.getElementById('fab_desc').textContent  = isShop?'직경 '+D+'m ≤ 4m — 공장 완성 후 운송 가능, 단가 안정적':'직경 '+D+'m > 4m — 현장 조립 필요, 크레인·비계 포함으로 단가 상승';
+  const press = parseFloat(document.getElementById('press').value) || 0;
+  const P_mpa  = press * 0.0981;  // kgf/cm2 -> MPa
   const S=137,E=0.85,shellH=H/shellCnt;
   const eng={};
-  eng['BOTTOM']=getCommTh(Math.max(6+ca,5+ca));
-  for(let i=1;i<=shellCnt;i++){const hFB=H-(shellCnt-i)*shellH;let t=(4.9*D*(Math.max(hFB-0.3,0))*sg)/(S*E)+ca;const am=D>61?10:D>36.6?8:D>15.2?6:5;eng['SHELL-'+i]=getCommTh(Math.max(t,am+ca));}
-  eng['ROOF']=getCommTh(6+ca);
+  // Bottom: 압력 추가 두께 반영
+  const t_bot_press = P_mpa > 0 ? (P_mpa * D * 1000) / (2 * S * E) : 0;
+  eng['BOTTOM']=getCommTh(Math.max(6+ca+t_bot_press, 5+ca));
+  // Shell: 수두압 + 운전압력 동시 반영
+  for(let i=1;i<=shellCnt;i++){
+    const hFB=H-(shellCnt-i)*shellH;
+    const t_hydro=(4.9*D*(Math.max(hFB-0.3,0))*sg)/(S*E);
+    const t_press_shell = P_mpa > 0 ? (P_mpa * D * 1000) / (2 * S * E) : 0;
+    let t = t_hydro + t_press_shell + ca;
+    const am=D>61?10:D>36.6?8:D>15.2?6:5;
+    eng['SHELL-'+i]=getCommTh(Math.max(t,am+ca));
+  }
+  // Roof: 압력 있으면 추가 반영
+  const t_roof_press = P_mpa > 0 ? (P_mpa * D * 1000) / (2 * S * E) : 0;
+  eng['ROOF']=getCommTh(Math.max(6+ca+t_roof_press, 6+ca));
   const ai={...eng};
   renderThick(eng,ai,SHELLS);
   const aBase=Math.PI*D*D/4,aShell=Math.PI*D*H;
@@ -1134,7 +1190,27 @@ function calc() {
   set('c_weld',won(cWeld));set('s_weld_md',mdW+' M/D x 330,000원');
   set('c_assist',won(cAst));set('s_assist_md',mdA+' M/D x 330,000원');
   set('sub_mat',won(matSum));set('sub_fab',won(fabSum));set('sub_lab',won(labSum));
-  set('grand',won(grand));
+  // 페인트 계산
+  const paintExtYes = document.getElementById('paint_ext_yes').checked;
+  const paintIntYes = document.getElementById('paint_int_yes').checked;
+  const PAINT_RATE = 30000;
+  const PAINT_COAT = 6;
+  const aShellPaint = Math.PI * D * H;
+  const aRoofPaint  = Math.PI * D * D / 4;
+  const aBotPaint   = Math.PI * D * D / 4;
+  const aExt = aShellPaint + aRoofPaint + aBotPaint;
+  const aInt = aShellPaint + aBotPaint;
+  const cPaintExt   = paintExtYes ? aExt * PAINT_COAT * PAINT_RATE : 0;
+  const cPaintInt   = paintIntYes ? aInt * PAINT_COAT * PAINT_RATE : 0;
+  const cPaintTotal = cPaintExt + cPaintInt;
+  const grandTotal  = grand + cPaintTotal;
+
+  set('c_paint_ext',   paintExtYes ? won(cPaintExt) : '—');
+  set('s_paint_ext',   paintExtYes ? aExt.toFixed(1)+'m² × 6회' : '제외');
+  set('c_paint_int',   paintIntYes ? won(cPaintInt) : '—');
+  set('s_paint_int',   paintIntYes ? aInt.toFixed(1)+'m² × 6회' : '제외');
+  set('c_paint_total', cPaintTotal>0 ? won(cPaintTotal) : '—');
+  set('grand',won(grandTotal));
   set('cc_wt',fkg(Math.round(wTotal)));
   set('cc_vol',raw(Math.round(grand/vol))+'원/m3');
   set('cc_kg',raw(Math.round(grand/wTotal))+'원/kg');
