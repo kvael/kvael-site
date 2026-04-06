@@ -1588,7 +1588,6 @@ async function submitQuote(mode='engineering'){
     const d=await res.json();
     if(d.success){
       const modeLabel = mode==='ai' ? 'AI 검토 기준' : '공학식 기준';
-      alert(`[${modeLabel}] 견적서가 ${email} 으로 발송되었습니다!\n\n총 견적금액: ${d.grand.toLocaleString('ko-KR')}원 (VAT 별도)`);
     } else { alert('오류: '+d.message); }
   }catch(e){alert('서버 연결 실패: '+e.message);}
   finally{btn.textContent=origText;btn.disabled=false;}
@@ -1823,9 +1822,8 @@ async function sqSubmitQuote(mode='engineering'){
     if(mode==='ai'&&window._sqAIReviewData) payload.ai_grand_review=window._sqAIReviewData.grand_review;
     const apiRes=await fetch(SQ_FLASK_URL+'/api/quote-square',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await apiRes.json();
-    if(d.success){const label=mode==='ai'?'AI 검토 기준':'공학식 기준';alert(`[${label}] 견적서가 ${email}으로 발송되었습니다!
+    if(d.success){const label=mode==='ai'?'AI 검토 기준':'공학식 기준';alert('['+label+'] 견적서가 '+email+'으로 발송되었습니다!\n\n총 견적금액: '+d.grand.toLocaleString('ko-KR')+'원 (VAT 별도)');}
 
-총 견적금액: ${d.grand.toLocaleString('ko-KR')}원 (VAT 별도)`);}
     else alert('오류: '+d.message);
   }catch(e){alert('서버 연결 실패: '+e.message);}
   finally{btn.textContent=orig;btn.disabled=false;}
