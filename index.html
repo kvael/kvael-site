@@ -1017,7 +1017,9 @@ function dragLeave()  { document.getElementById('upload_zone').classList.remove(
 function dropFile(e)  { e.preventDefault(); dragLeave(); handlePDF(e.dataTransfer.files[0]); }
 
 async function handlePDF(file) {
-  if (!file || file.type !== 'application/pdf') { alert('PDF 파일만 업로드 가능합니다.'); return; }
+  if (!file) { alert('파일을 선택해주세요.'); return; }
+  const allowed = ['application/pdf','image/jpeg','image/jpg','image/png'];
+  if (!allowed.includes(file.type)) { alert('PDF, JPG, PNG 파일만 업로드 가능합니다.'); return; }
   const zone = document.getElementById('upload_zone');
   document.getElementById('upload_icon').innerHTML = '<div class="spinner"></div>';
   document.getElementById('upload_title').textContent = 'Claude AI가 도면 분석 중...';
