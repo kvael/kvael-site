@@ -581,9 +581,9 @@ select option{background:#fff}
            ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="dropFile(event)">
         <div class="upload-icon" id="upload_icon">📄</div>
         <div class="upload-title" id="upload_title">도면 PDF를 여기에 드래그하거나 클릭하여 업로드</div>
-        <div class="upload-sub" id="upload_sub">Claude AI가 직경·높이·두께·형태를 자동으로 읽어옵니다 · 최대 20MB</div>
+        <div class="upload-sub" id="upload_sub">PDF 도면 또는 이미지(JPG/PNG)를 업로드하세요 · Claude AI가 치수를 자동 인식합니다 · 최대 20MB</div>
       </div>
-      <input type="file" id="pdf_input" accept=".pdf" style="display:none" onchange="handlePDF(this.files[0])">
+      <input type="file" id="pdf_input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handlePDF(this.files[0])">
       <div style="margin-top:8px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--primary);line-height:1.6">
         ℹ AI가 도면을 읽어 치수를 자동 입력합니다. <strong>인식 결과가 다를 경우 아래에서 직접 수정해주세요.</strong> 도면 없이 파라미터만 직접 입력하셔도 됩니다.
       </div>
@@ -1028,11 +1028,12 @@ async function handlePDF(file) {
   document.getElementById('pdf_manual_guide').style.display = 'none';
   try {
     const b64 = await fileToBase64(file);
+    const fileType = file.type === 'application/pdf' ? 'pdf' : 'image';
     // Flask 서버를 통해 Claude API 호출 (API 키 보호)
     const res = await fetch(FLASK_URL + '/api/analyze-pdf', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({pdf_base64: b64})
+      body: JSON.stringify({pdf_base64: b64, file_type: fileType})
     });
     const r = await res.json();
     if (!r.found) throw new Error('도면에서 탱크 정보를 찾지 못했습니다. 직접 입력해 주세요.');
@@ -1162,7 +1163,7 @@ function resetForm(){
   z.classList.remove('done','drag');
   document.getElementById('upload_icon').textContent='📄';
   document.getElementById('upload_title').textContent='도면 PDF를 여기에 드래그하거나 클릭하여 업로드';
-  document.getElementById('upload_sub').textContent='Claude AI가 직경·높이·두께·형태를 자동으로 읽어옵니다 · 최대 20MB';
+  document.getElementById('upload_sub').textContent='PDF 도면 또는 이미지(JPG/PNG)를 업로드하세요 · Claude AI가 치수를 자동 인식합니다 · 최대 20MB';
   calc();
 }
 
