@@ -1816,7 +1816,12 @@ async function sqSubmitQuote(mode='engineering'){
   btn.textContent='⏳ 처리 중...';btn.disabled=true;
   try{
     const payload={company,contact,email,tank_type:'square',L:res.L,W:res.W,H:res.H,mat:res.mat,sg:res.sg,ca:res.ca,shape:res.shape,p_ss:parseInt(document.getElementById('sq_p_ss').value),p_304:parseInt(document.getElementById('sq_p_304').value),p_316:parseInt(document.getElementById('sq_p_316').value),paint_ext:document.getElementById('sq_paint_ext_yes').checked,paint_int:document.getElementById('sq_paint_int_yes').checked,mode};
-    if(mode==='ai'&&window._sqAIReviewData) payload.ai_grand_review=window._sqAIReviewData.grand_review;
+    if(mode==='ai'&&window._sqAIReviewData){
+      payload.ai_grand_review=window._sqAIReviewData.grand_review;
+      payload.ai_t_bot=window._sqAIReviewData.t_bot;
+      payload.ai_t_shell=window._sqAIReviewData.t_shell;
+      payload.ai_t_roof=window._sqAIReviewData.t_roof;
+    }
     const apiRes=await fetch(SQ_FLASK_URL+'/api/quote-square',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await apiRes.json();
     if(d.success){const label=mode==='ai'?'AI 검토 기준':'공학식 기준';alert('['+label+'] 견적서가 '+email+'으로 발송되었습니다!\n\n총 견적금액: '+d.grand.toLocaleString('ko-KR')+'원 (VAT 별도)');}
