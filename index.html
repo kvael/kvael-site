@@ -381,7 +381,7 @@ select option{background:#fff}
   <button class="mob-item">AI 견적</button>
   <button class="mob-sub" onclick="showPage('quote-round');closeMenu()">⭕ 원형 탱크</button>
   <button class="mob-sub" onclick="showPage('wip');closeMenu()">🔩 배관 공사 (준비중)</button>
-  <button class="mob-sub" onclick="showPage('wip');closeMenu()">⬜ 사각 탱크 (준비중)</button>
+  <button class="mob-sub" onclick="showPage('quote-square');closeMenu()">⬜ 사각 탱크</button>
   <div class="mob-divider"></div>
   <button class="mob-item" onclick="showPage('support');closeMenu()">고객 지원</button>
   <button class="mob-item" style="color:var(--primary);font-weight:700" onclick="showPage('quote-round');closeMenu()">무료 견적 요청 →</button>
@@ -447,7 +447,7 @@ select option{background:#fff}
           <div class="qcard-foot"><button class="qcard-btn wip" onclick="event.stopPropagation()">준비 중</button></div>
         </div>
         <div class="qcard">
-          <div class="qcard-top"><div class="qcard-tag">사각 탱크</div><div class="qcard-title">Rectangular Tank</div><div class="qcard-sub">준비 중</div></div>
+          <div class="qcard-top" onclick="showPage('quote-square')"><div class="qcard-tag">사각 탱크</div><div class="qcard-title">Rectangular Tank</div><div class="qcard-sub">수압계산 · AI 견적</div></div>
           <div class="qcard-body">
             <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>수압 자동 계산</div>
             <div class="qcard-feat"><div class="feat-chk" style="background:#f0f0f0;color:#aaa">·</div>보강재 자동 설계</div>
@@ -883,6 +883,302 @@ select option{background:#fff}
 </div><!-- /quote-page-inner -->
 </div><!-- /quote-page-wrap -->
 </div><!-- /quote-round page -->
+<!-- ══════════════ 사각 탱크 견적 ══════════════ -->
+<div id="quote-square" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner">
+
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">사각 탱크 AI 견적 시스템</div>
+    <div class="qp-sub">K-VAEL · 수압 계산 기준 · 공학식 / 수동 / AI 산출 · 엑셀 BOQ + 설계 보고서 자동 발송</div>
+  </div>
+
+  <div class="notice-bar">
+    ⚠ 본 산출 결과는 <strong>예비(Budgetary) 견적 참고용</strong>이며 계약·시공의 법적 근거로 사용할 수 없습니다.
+    최종 금액 및 두께는 K-VAEL의 공식 강도 계산 및 도면 승인 완료 후 확정됩니다.
+  </div>
+
+  <!-- 고객 정보 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a5fad"></div>고객 정보</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>회사명</label><input type="text" id="sq_company" placeholder="(주)고객사명"></div>
+        <div class="field"><label>담당자명</label><input type="text" id="sq_contact" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (견적서 수신)</label><input type="email" id="sq_email" placeholder="email@company.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탱크 사양 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>탱크 기본 사양</div>
+    <div class="fcard-body">
+
+      <!-- 탱크 형태 선택 -->
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">탱크 형태 선택</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+
+          <!-- 상부 막힌 형태 -->
+          <div class="shape-card active" onclick="sqSelectShape('closed')" id="sq-shape-closed">
+            <svg viewBox="0 0 120 100" style="width:100%;height:75px">
+              <line x1="20" y1="14" x2="100" y2="14" stroke="#1a5fad" stroke-width="3"/>
+              <rect x="20" y="14" width="80" height="70" fill="#eef4fd" stroke="#1a5fad" stroke-width="2"/>
+              <line x1="20" y1="84" x2="100" y2="84" stroke="#1a5fad" stroke-width="3"/>
+              <line x1="30" y1="84" x2="25" y2="98" stroke="#888" stroke-width="1.5"/>
+              <line x1="90" y1="84" x2="95" y2="98" stroke="#888" stroke-width="1.5"/>
+              <line x1="20" y1="42" x2="100" y2="42" stroke="#1a5fad" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+              <line x1="20" y1="56" x2="100" y2="56" stroke="#1a5fad" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+            </svg>
+            <div style="font-size:10px;font-weight:700;color:var(--primary);text-align:center;padding:3px 0 1px">상부 막힌 형태</div>
+            <div style="font-size:9px;color:var(--text2);text-align:center;padding-bottom:5px">Closed Top</div>
+          </div>
+
+          <!-- 상부 개방 형태 -->
+          <div class="shape-card" onclick="sqSelectShape('open')" id="sq-shape-open">
+            <svg viewBox="0 0 120 100" style="width:100%;height:75px">
+              <line x1="20" y1="14" x2="100" y2="14" stroke="#1a5fad" stroke-width="2" stroke-dasharray="6,4"/>
+              <rect x="20" y="14" width="80" height="70" fill="#eef4fd" stroke="#1a5fad" stroke-width="2"/>
+              <line x1="20" y1="84" x2="100" y2="84" stroke="#1a5fad" stroke-width="3"/>
+              <line x1="30" y1="84" x2="25" y2="98" stroke="#888" stroke-width="1.5"/>
+              <line x1="90" y1="84" x2="95" y2="98" stroke="#888" stroke-width="1.5"/>
+              <line x1="60" y1="5" x2="60" y2="14" stroke="#1a5fad" stroke-width="1.5"/>
+              <polygon points="56,8 60,2 64,8" fill="#1a5fad"/>
+            </svg>
+            <div style="font-size:10px;font-weight:700;color:var(--primary);text-align:center;padding:3px 0 1px">상부 개방 형태</div>
+            <div style="font-size:9px;color:var(--text2);text-align:center;padding-bottom:5px">Open Top</div>
+          </div>
+
+          <!-- 교반기 설치 형태 -->
+          <div class="shape-card" onclick="sqSelectShape('agitator')" id="sq-shape-agitator">
+            <svg viewBox="0 0 120 100" style="width:100%;height:75px">
+              <rect x="15" y="10" width="90" height="8" fill="#dde8fa" stroke="#1a5fad" stroke-width="1.5"/>
+              <rect x="50" y="2" width="20" height="10" rx="3" fill="#1a5fad"/>
+              <line x1="60" y1="18" x2="60" y2="75" stroke="#1a5fad" stroke-width="1.5" stroke-dasharray="3,2"/>
+              <rect x="20" y="18" width="80" height="66" fill="#eef4fd" stroke="#1a5fad" stroke-width="2"/>
+              <line x1="20" y1="84" x2="100" y2="84" stroke="#1a5fad" stroke-width="3"/>
+              <line x1="30" y1="84" x2="25" y2="98" stroke="#888" stroke-width="1.5"/>
+              <line x1="90" y1="84" x2="95" y2="98" stroke="#888" stroke-width="1.5"/>
+              <line x1="45" y1="72" x2="75" y2="72" stroke="#1a5fad" stroke-width="2"/>
+              <line x1="45" y1="78" x2="75" y2="78" stroke="#1a5fad" stroke-width="2"/>
+            </svg>
+            <div style="font-size:10px;font-weight:700;color:var(--primary);text-align:center;padding:3px 0 1px">교반기 설치 형태</div>
+            <div style="font-size:9px;color:var(--text2);text-align:center;padding-bottom:5px">With Agitator</div>
+          </div>
+        </div>
+        <input type="hidden" id="sq_shape" value="closed">
+      </div>
+
+      <!-- 교반기 옵션 -->
+      <div id="sq-agitator-options" style="display:none;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px">교반기 상부 보강재</div>
+        <div class="g2">
+          <div class="field">
+            <label>보강재 타입</label>
+            <select id="sq_agitator_reinf" onchange="sqCalc()">
+              <option value="channel">찬넬 (Channel) — 기본</option>
+              <option value="beam">빔 (H-Beam)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>교반기 용량 (kW)</label>
+            <input type="number" id="sq_agitator_kw" placeholder="예: 3.7" step="0.1" oninput="sqCalc()">
+          </div>
+        </div>
+      </div>
+
+      <!-- 치수 -->
+      <div class="g3" style="margin-bottom:12px">
+        <div class="field"><label>가로 L (m)</label><input type="number" id="sq_L" placeholder="예: 2.0" step="0.1" oninput="sqCalc()"></div>
+        <div class="field"><label>세로 W (m)</label><input type="number" id="sq_W" placeholder="예: 2.0" step="0.1" oninput="sqCalc()"></div>
+        <div class="field"><label>높이 H (m)</label><input type="number" id="sq_H" placeholder="예: 2.0" step="0.1" oninput="sqCalc()"></div>
+      </div>
+
+      <div class="g4">
+        <div class="field"><label>재질</label>
+          <select id="sq_mat" onchange="sqCalc()">
+            <option value="SS275">SS275 (SS400)</option>
+            <option value="STS304" selected>STS304</option>
+            <option value="STS316L">STS316L</option>
+          </select>
+        </div>
+        <div class="field"><label>유체 종류</label>
+          <select id="sq_fluid" onchange="sqSetFluid()">
+            <option value="water">물 (Water)</option>
+            <option value="ww">폐수 (Wastewater)</option>
+            <option value="chem">화학약품</option>
+            <option value="slurry">슬러지</option>
+            <option value="custom">직접 입력</option>
+          </select>
+        </div>
+        <div class="field"><label>유체 비중 G</label><input type="number" id="sq_sg" placeholder="1.00" step="0.05" oninput="sqCalc()"></div>
+        <div class="field"><label>부식여유 CA (mm)</label><input type="number" id="sq_ca" placeholder="1.0" step="0.5" oninput="sqCalc()"></div>
+      </div>
+
+      <!-- 제작방식 배너 -->
+      <div class="fab shop" id="sq_fab_banner">
+        <span class="fab-icon">🏭</span>
+        <div>
+          <strong id="sq_fab_title">공장 제작 (Shop Fabrication)</strong>
+          <span id="sq_fab_desc">사이즈를 입력하면 제작방식을 자동 판별합니다</span>
+        </div>
+      </div>
+
+      <!-- 페인트 옵션 -->
+      <div style="margin-top:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">🎨 페인트 (에폭시) 옵션</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px">외부 페인트</label>
+            <div style="display:flex;gap:12px;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="sq_paint_ext" value="yes" id="sq_paint_ext_yes" onchange="sqCalc()"><span>포함</span></label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="sq_paint_ext" value="no" id="sq_paint_ext_no" onchange="sqCalc()" checked><span>제외</span></label>
+            </div>
+            <div style="font-size:11px;color:var(--text3)">외부 면적 × 6회 × 30,000원/회</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px">내부 페인트</label>
+            <div style="display:flex;gap:12px;align-items:center">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="sq_paint_int" value="yes" id="sq_paint_int_yes" onchange="sqCalc()"><span>포함</span></label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="sq_paint_int" value="no" id="sq_paint_int_no" onchange="sqCalc()" checked><span>제외</span></label>
+            </div>
+            <div style="font-size:11px;color:var(--text3)">내부 면적 × 6회 × 30,000원/회</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 자재 단가 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b85c00"></div>자재 단가 (원/kg) — 직접 수정 가능</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>SS275 단가</label><input type="text" id="sq_p_ss_d" value="1,100" oninput="sqSyncP('sq_p_ss_d','sq_p_ss')" onfocus="this.select()"><input type="hidden" id="sq_p_ss" value="1100"></div>
+        <div class="field"><label>STS304 단가</label><input type="text" id="sq_p_304_d" value="3,800" oninput="sqSyncP('sq_p_304_d','sq_p_304')" onfocus="this.select()"><input type="hidden" id="sq_p_304" value="3800"></div>
+        <div class="field"><label>STS316L 단가</label><input type="text" id="sq_p_316_d" value="5,500" oninput="sqSyncP('sq_p_316_d','sq_p_316')" onfocus="this.select()"><input type="hidden" id="sq_p_316" value="5500"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 두께 산출 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a7a40"></div>두께 산출 — 공학식 / 수동입력 / AI 검토</div>
+    <div class="fcard-body">
+      <div class="thick-hdr">
+        <span></span><span class="eng-h">공학식 (수압계산)</span><span>수동 입력</span><span class="ai-h">AI 검토 (Claude)</span>
+      </div>
+      <div class="thick-row">
+        <div class="thick-name">BOTTOM</div>
+        <div class="thick-eng" id="sq-eng-BOTTOM">— mm</div>
+        <div class="thick-manual"><input type="number" id="sq_m_BOTTOM" placeholder="—" step="1" min="1" max="50" oninput="sqCalc()"><span class="mm-unit">mm</span></div>
+        <div class="thick-ai" id="sq-ai-BOTTOM">— mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span></div>
+      </div>
+      <div class="thick-row">
+        <div class="thick-name">SHELL (벽판)</div>
+        <div class="thick-eng" id="sq-eng-SHELL">— mm</div>
+        <div class="thick-manual"><input type="number" id="sq_m_SHELL" placeholder="—" step="1" min="1" max="50" oninput="sqCalc()"><span class="mm-unit">mm</span></div>
+        <div class="thick-ai" id="sq-ai-SHELL">— mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span></div>
+      </div>
+      <div class="thick-row" id="sq-roof-row">
+        <div class="thick-name">ROOF (상판)</div>
+        <div class="thick-eng" id="sq-eng-ROOF">— mm</div>
+        <div class="thick-manual"><input type="number" id="sq_m_ROOF" placeholder="—" step="1" min="1" max="50" oninput="sqCalc()"><span class="mm-unit">mm</span></div>
+        <div class="thick-ai" id="sq-ai-ROOF">— mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span></div>
+      </div>
+
+      <!-- 보강재 -->
+      <div class="reinf-box" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">보강재 (Reinforcement) 기본 검토</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">
+          <span style="color:var(--text2);font-size:12px">Shell 수평 보강재</span>
+          <span style="font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace" id="sq-reinf-shell">사이즈 입력 후 산출</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px">
+          <span style="color:var(--text2);font-size:12px">보강재 간격</span>
+          <span style="font-weight:700;color:var(--text);font-family:'JetBrains Mono',monospace" id="sq-reinf-spacing">—</span>
+        </div>
+        <div id="sq-agitator-reinf-row" style="display:none;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border);font-size:13px">
+          <span style="color:var(--text2);font-size:12px">교반기 상부 보강재</span>
+          <span style="font-weight:700;color:var(--text)" id="sq-agitator-reinf-val">찬넬 (기본)</span>
+          <span style="color:var(--green);font-size:11px;font-weight:600" id="sq-agitator-reinf-ai"></span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px">ℹ 기본: 앵글(Angle) / AI 검토 시 찬넬(Channel) 여부 자동 판단</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOQ -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b52020"></div>BOQ 비용 산출</div>
+    <div class="fcard-body">
+      <div class="boq-sec">1-1 Material Costs</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">Roof Plate</div><div class="boq-val" id="sq_c_roof">—</div><div class="boq-sub" id="sq_s_roof">—</div></div>
+        <div class="boq-item"><div class="boq-label">Shell Plate (벽판)</div><div class="boq-val" id="sq_c_shell">—</div><div class="boq-sub" id="sq_s_shell">—</div></div>
+        <div class="boq-item"><div class="boq-label">Bottom Plate</div><div class="boq-val" id="sq_c_bot">—</div><div class="boq-sub" id="sq_s_bot">—</div></div>
+        <div class="boq-item"><div class="boq-label">Nozzles &amp; Flanges</div><div class="boq-val" id="sq_c_noz">—</div><div class="boq-sub">10K FF Flange</div></div>
+        <div class="boq-item"><div class="boq-label">Reinforcement</div><div class="boq-val" id="sq_c_reinf">—</div><div class="boq-sub" id="sq_s_reinf">앵글 기준</div></div>
+        <div class="boq-item"><div class="boq-label">MISC + CONSUMABLE</div><div class="boq-val" id="sq_c_misc">—</div></div>
+      </div>
+      <div class="boq-sec">1-2 Machining Costs</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">Bending / Rolling</div><div class="boq-val" id="sq_c_bend">—</div></div>
+        <div class="boq-item"><div class="boq-label">Laser / Plasma Cutting</div><div class="boq-val" id="sq_c_cut">—</div></div>
+        <div class="boq-item"><div class="boq-label">Surface Treatment (자재)</div><div class="boq-val" id="sq_c_paint_mat">—</div><div class="boq-sub" id="sq_s_paint_mat">제외</div></div>
+      </div>
+      <div class="boq-sec">1-3 Labor Costs (M/D · 330,000원)</div>
+      <div class="boq-grid">
+        <div class="boq-item"><div class="boq-label">Fabrication Labor</div><div class="boq-val" id="sq_c_fab_l">—</div><div class="boq-sub" id="sq_s_fab_md">—</div></div>
+        <div class="boq-item"><div class="boq-label">Welding Labor</div><div class="boq-val" id="sq_c_weld">—</div><div class="boq-sub" id="sq_s_weld_md">—</div></div>
+        <div class="boq-item"><div class="boq-label">Assistant Labor</div><div class="boq-val" id="sq_c_assist">—</div><div class="boq-sub" id="sq_s_assist_md">—</div></div>
+        <div class="boq-item"><div class="boq-label">도장 인건비</div><div class="boq-val" id="sq_c_paint_labor">—</div><div class="boq-sub" id="sq_s_paint_labor">제외</div></div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 13px;font-size:13px;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">자재비 소계</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700" id="sq_sub_mat">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 13px;font-size:13px;border-bottom:1px solid var(--border)"><span style="color:var(--text2)">가공비 소계</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700" id="sq_sub_fab">—</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 13px;font-size:13px"><span style="color:var(--text2)">노무비 소계</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700" id="sq_sub_lab">—</span></div>
+      </div>
+      <div style="background:var(--primary);border-radius:8px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.85)">총 견적금액 (VAT 별도)</div>
+        <div style="font-size:20px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace" id="sq_grand">—</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:600">총 중량</div><div style="font-size:13px;font-weight:700;color:var(--text2);font-family:'JetBrains Mono',monospace" id="sq_cc_wt">—</div></div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:600">단가 (원/m³)</div><div style="font-size:13px;font-weight:700;color:var(--text2);font-family:'JetBrains Mono',monospace" id="sq_cc_vol">—</div></div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 11px"><div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;font-weight:600">단가 (원/kg)</div><div style="font-size:13px;font-weight:700;color:var(--text2);font-family:'JetBrains Mono',monospace" id="sq_cc_kg">—</div></div>
+      </div>
+      <div style="background:var(--green-lt);border:1px solid var(--green-bd);border-radius:8px;padding:12px 14px;margin-top:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px">🤖 AI 검토 의견 (Claude)</div>
+        <div style="font-size:12px;color:#1a5530;line-height:1.9;white-space:pre-line" id="sq_ai_comment">파라미터를 입력하면 Claude가 두께·보강재 적정성 및 금액 합리성을 검토합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI 검토 버튼 -->
+  <div style="margin-bottom:12px">
+    <button style="width:100%;padding:14px;background:linear-gradient(135deg,#1a7a40,#1a5fad);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s" onclick="sqRequestAIReview()" id="sq-ai-review-btn">
+      <span>🤖</span><span id="sq-ai-review-btn-text">Claude AI 실무 검토 요청</span>
+    </button>
+    <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">두께·보강재 적정성 및 금액을 실무 경험 기반으로 재검토합니다</div>
+  </div>
+
+  <!-- 발송 버튼 -->
+  <div class="fbtn-wrap">
+    <button class="fbtn fbtn-reset" onclick="sqResetForm()">↺ 초기화</button>
+    <button class="fbtn fbtn-print" onclick="window.print()">🖨 인쇄/PDF</button>
+    <button class="fbtn fbtn-submit" id="sq-btn-eng" onclick="sqSubmitQuote('engineering')">📧 공학식 기준 견적서 발송</button>
+    <button class="fbtn fbtn-submit" id="sq-btn-ai" onclick="sqSubmitQuote('ai')" style="background:linear-gradient(135deg,#1a7a40,#1a5fad);display:none">🤖 AI 검토 기준 견적서 발송</button>
+  </div>
+  <div style="height:36px"></div>
+
+</div>
+</div>
+</div><!-- /quote-square page -->
+
 
 <!-- ══════════════ JS ══════════════ -->
 <script>
@@ -1299,6 +1595,254 @@ async function submitQuote(mode='engineering'){
 }
 
 window.onload=function(){ /* 직경/높이 미입력 상태로 시작 */ };
+
+// ════════════════════════════════════════
+// 사각탱크 JS
+// ════════════════════════════════════════
+const SQ_FLASK_URL = 'https://api.kvael.co.kr';
+const SQ_MD = 330000;
+
+const sqWon = n => Math.round(n).toLocaleString('ko-KR') + '원';
+const sqKg  = n => Math.round(n).toLocaleString('ko-KR') + 'kg';
+const sqRaw = n => Math.round(n).toLocaleString('ko-KR');
+
+function sqSelectShape(val) {
+  document.getElementById('sq_shape').value = val;
+  ['closed','open','agitator'].forEach(s => {
+    const el = document.getElementById('sq-shape-'+s);
+    if(el) el.classList.remove('active');
+  });
+  const t = document.getElementById('sq-shape-'+val);
+  if(t) t.classList.add('active');
+  document.getElementById('sq-agitator-options').style.display = val==='agitator'?'block':'none';
+  document.getElementById('sq-agitator-reinf-row').style.display = val==='agitator'?'flex':'none';
+  document.getElementById('sq-roof-row').style.display = val==='open'?'none':'grid';
+  sqCalc();
+}
+
+function sqSetFluid() {
+  const map = {water:1.00,ww:1.05,chem:1.20,slurry:1.15};
+  const f = document.getElementById('sq_fluid').value;
+  if(map[f]!==undefined) document.getElementById('sq_sg').value = map[f];
+  sqCalc();
+}
+
+function sqSyncP(dId,hId) {
+  const el = document.getElementById(dId);
+  const num = parseInt(el.value.replace(/[^0-9]/g,''))||0;
+  el.value = num.toLocaleString('ko-KR');
+  document.getElementById(hId).value = num;
+  sqCalc();
+}
+
+function sqGetCommTh(t) {
+  for(let s of [3,4,5,6,8,10,12,14,16,19,22,25]) if(t<=s) return s;
+  return Math.ceil(t);
+}
+
+function sqGetReinfInfo(L,W,H) {
+  const maxSpan = Math.max(L,W);
+  let reinfType,spacing;
+  if(maxSpan<=1.0){reinfType='Angle 50×50×5t';spacing=H<=1.5?'중간 1단':'중간 2단';}
+  else if(maxSpan<=2.0){reinfType='Angle 65×65×6t';spacing=H<=2.0?'중간 1단':'1,000mm 간격';}
+  else if(maxSpan<=3.0){reinfType='Angle 75×75×7t';spacing='800mm 간격';}
+  else{reinfType='Channel 100×50×5t';spacing='600mm 간격';}
+  return {reinfType,spacing};
+}
+
+function sqCalc() {
+  const L  = parseFloat(document.getElementById('sq_L').value)||0;
+  const W  = parseFloat(document.getElementById('sq_W').value)||0;
+  const H  = parseFloat(document.getElementById('sq_H').value)||0;
+  const sg = parseFloat(document.getElementById('sq_sg').value)||1.0;
+  const ca = parseFloat(document.getElementById('sq_ca').value)||1.0;
+  const mat   = document.getElementById('sq_mat').value;
+  const shape = document.getElementById('sq_shape').value;
+  const pSS  = parseInt(document.getElementById('sq_p_ss').value)||1100;
+  const p304 = parseInt(document.getElementById('sq_p_304').value)||3800;
+  const p316 = parseInt(document.getElementById('sq_p_316').value)||5500;
+  if(!L||!W||!H) return;
+
+  let rho,uPrice;
+  if(mat==='SS275'){rho=7.85;uPrice=pSS;}
+  else if(mat==='STS304'){rho=7.93;uPrice=p304;}
+  else{rho=7.98;uPrice=p316;}
+
+  const maxDim = Math.max(L,W);
+  const isShop = maxDim<=3.0&&H<=3.0;
+  document.getElementById('sq_fab_banner').className='fab '+(isShop?'shop':'field');
+  document.getElementById('sq_fab_title').textContent=isShop?'공장 제작 (Shop Fabrication)':'⚠ 현장 제작 (Field Erection) — 비용 상승';
+  document.getElementById('sq_fab_desc').textContent=isShop?`최대변 ${maxDim}m × H${H}m — 공장 제작 가능`:`최대변 ${maxDim}m 또는 H${H}m > 기준 — 현장 조립 필요`;
+
+  const P_max = sg*9.81*H;
+  const sigma=137,eta=0.85,b=Math.max(L,W);
+  const t_shell_req=(P_max*b*1000)/(2*sigma*eta*1000)*1000+ca;
+  const t_shell=sqGetCommTh(Math.max(t_shell_req,5+ca));
+  const t_bot=sqGetCommTh(Math.max(t_shell+2,6+ca));
+  const t_roof=shape!=='open'?sqGetCommTh(Math.max(4+ca,5)):0;
+
+  document.getElementById('sq-eng-BOTTOM').textContent=t_bot+' mm';
+  document.getElementById('sq-eng-SHELL').textContent=t_shell+' mm';
+  if(shape!=='open') document.getElementById('sq-eng-ROOF').textContent=t_roof+' mm';
+
+  const mBot  = parseInt(document.getElementById('sq_m_BOTTOM').value)||t_bot;
+  const mShell= parseInt(document.getElementById('sq_m_SHELL').value)||t_shell;
+  const mRoof = parseInt(document.getElementById('sq_m_ROOF').value)||t_roof;
+
+  const reinf=sqGetReinfInfo(L,W,H);
+  document.getElementById('sq-reinf-shell').textContent=reinf.reinfType+' (앵글 기준)';
+  document.getElementById('sq-reinf-spacing').textContent=reinf.spacing;
+  if(shape==='agitator'){
+    const agType=document.getElementById('sq_agitator_reinf').value;
+    document.getElementById('sq-agitator-reinf-val').textContent=agType==='beam'?'H-Beam 200×200':'찬넬 100×50×5t (기본)';
+  }
+
+  const LOSS=1.15;
+  const aBot=L*W,aShell=2*(L+W)*H,aRoof=shape!=='open'?L*W:0;
+  const wBot=aBot*(mBot/1000)*rho*1000*LOSS;
+  const wShell=aShell*(mShell/1000)*rho*1000*LOSS;
+  const wRoof=aRoof*(mRoof/1000)*rho*1000*LOSS;
+  const wReinf=(wBot+wShell+wRoof)*0.12;
+  let wAgit=0;
+  if(shape==='agitator'){
+    const agType=document.getElementById('sq_agitator_reinf').value;
+    wAgit=agType==='beam'?Math.max(L,W)*2*15:Math.max(L,W)*2*8;
+  }
+  const wTotal=wBot+wShell+wRoof+wReinf+wAgit;
+
+  const cBot=wBot*uPrice,cShell=wShell*uPrice,cRoof=wRoof*uPrice;
+  const noz=Math.max(2,Math.round((L+W)*1.5));
+  const cNoz=noz*150000;
+  const cReinf=(wReinf+wAgit)*uPrice;
+  const cMisc=wTotal*uPrice*0.04+wTotal*300;
+  const matSum=cBot+cShell+cRoof+cNoz+cReinf+cMisc;
+
+  const fRate=isShop?1500:2800;
+  const cBend=wTotal*fRate*0.4,cCut=wTotal*fRate*0.6;
+  const fabSum=cBend+cCut;
+
+  const lBase=wTotal*(isShop?2800:4800);
+  const mdT=Math.max(2,Math.round(lBase/SQ_MD));
+  const mdF=Math.max(1,Math.round(mdT*0.4));
+  const mdW=Math.max(1,Math.round(mdT*0.4));
+  const mdA=Math.max(1,mdT-mdF-mdW);
+  const labSum=(mdF+mdW+mdA)*280000;
+  const expSum=(mdF+mdW+mdA)*50000;
+
+  // 페인트
+  const paintExtYes=document.getElementById('sq_paint_ext_yes').checked;
+  const paintIntYes=document.getElementById('sq_paint_int_yes').checked;
+  const aExtP=(2*(L+W)*H)+(L*W)+(shape!=='open'?L*W:0);
+  const aIntP=(2*(L+W)*H)+(L*W);
+  const areaPaint=(paintExtYes?aExtP:0)+(paintIntYes?aIntP:0);
+  const cPaintMat=areaPaint*6*10000;
+  const paintMd=areaPaint>0?Math.max(1,Math.round(areaPaint*6*20000/280000)):0;
+  const cPaintLab=paintMd*280000;
+  const cPaintExp=paintMd*50000;
+  const cPaintTotal=cPaintMat+cPaintLab+cPaintExp;
+
+  const vol=L*W*H;
+  const grand=matSum+fabSum+labSum+expSum+cPaintTotal;
+
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('sq_c_roof',sqWon(cRoof));set('sq_s_roof',mat+' '+mRoof+'T');
+  set('sq_c_shell',sqWon(cShell));set('sq_s_shell',mat+' '+mShell+'T');
+  set('sq_c_bot',sqWon(cBot));set('sq_s_bot',mat+' '+mBot+'T');
+  set('sq_c_noz',sqWon(cNoz));
+  set('sq_c_reinf',sqWon(cReinf));set('sq_s_reinf',reinf.reinfType);
+  set('sq_c_misc',sqWon(cMisc));
+  set('sq_c_bend',sqWon(cBend));set('sq_c_cut',sqWon(cCut));
+  set('sq_c_paint_mat',areaPaint>0?sqWon(cPaintMat):'—');
+  set('sq_s_paint_mat',areaPaint>0?areaPaint.toFixed(1)+'m² × 6회 × 10,000원':'제외');
+  set('sq_c_fab_l',sqWon(mdF*280000));set('sq_s_fab_md',mdF+' M/D × 330,000원');
+  set('sq_c_weld',sqWon(mdW*280000));set('sq_s_weld_md',mdW+' M/D × 330,000원');
+  set('sq_c_assist',sqWon(mdA*280000));set('sq_s_assist_md',mdA+' M/D × 330,000원');
+  set('sq_c_paint_labor',areaPaint>0?sqWon(cPaintLab):'—');
+  set('sq_s_paint_labor',areaPaint>0?paintMd+' M/D × 280,000원':'제외');
+  set('sq_sub_mat',sqWon(matSum+cPaintMat));
+  set('sq_sub_fab',sqWon(fabSum));
+  set('sq_sub_lab',sqWon(labSum+expSum+cPaintLab+cPaintExp));
+  set('sq_grand',sqWon(grand));
+  set('sq_cc_wt',sqKg(Math.round(wTotal)));
+  set('sq_cc_vol',sqRaw(Math.round(grand/vol))+'원/m³');
+  set('sq_cc_kg',sqRaw(Math.round(grand/wTotal))+'원/kg');
+  set('sq_ai_comment','파라미터 입력 완료. Claude AI 검토 버튼을 눌러 실무 검토를 받아보세요.');
+
+  window._sqCalcResult={L,W,H,mat,sg,ca,shape,t_bot:mBot,t_shell:mShell,t_roof:mRoof,grand,wTotal,vol,reinf,isShop,mdF,mdW,mdA,areaPaint,cPaintMat,cPaintLab,paintMd,paintExtYes,paintIntYes,uPrice};
+}
+
+async function sqRequestAIReview() {
+  const res=window._sqCalcResult;
+  if(!res){alert('먼저 탱크 사이즈를 입력해주세요.');return;}
+  const btn=document.getElementById('sq-ai-review-btn');
+  const btnText=document.getElementById('sq-ai-review-btn-text');
+  btn.disabled=true;btnText.textContent='🤖 Claude AI 검토 중... (10~20초 소요)';btn.style.opacity='0.7';
+  const agType=res.shape==='agitator'?document.getElementById('sq_agitator_reinf').value:null;
+  const agKW=res.shape==='agitator'?parseFloat(document.getElementById('sq_agitator_kw').value)||0:0;
+  try{
+    const apiRes=await fetch(SQ_FLASK_URL+'/api/review-square',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({L:res.L,W:res.W,H:res.H,mat:res.mat,sg:res.sg,ca:res.ca,shape:res.shape,t_bot:res.t_bot,t_shell:res.t_shell,t_roof:res.t_roof,reinf_type:res.reinf.reinfType,agitator_type:agType,agitator_kw:agKW,grand:res.grand,is_shop:res.isShop})
+    });
+    const data=await apiRes.json();
+    if(!data.success) throw new Error(data.error||'검토 실패');
+    if(data.t_bot){const el=document.getElementById('sq-ai-BOTTOM');el.textContent=data.t_bot+' mm';el.style.color=data.t_bot>res.t_bot?'#b85c00':'#1a7a40';}
+    if(data.t_shell){const el=document.getElementById('sq-ai-SHELL');el.textContent=data.t_shell+' mm';el.style.color=data.t_shell>res.t_shell?'#b85c00':'#1a7a40';}
+    if(data.t_roof&&res.shape!=='open'){const el=document.getElementById('sq-ai-ROOF');el.textContent=data.t_roof+' mm';}
+    if(data.reinf_recommendation){document.getElementById('sq-reinf-shell').textContent=data.reinf_recommendation;document.getElementById('sq-reinf-shell').style.color='var(--green)';}
+    if(data.agitator_reinf&&res.shape==='agitator') document.getElementById('sq-agitator-reinf-ai').textContent='→ AI: '+data.agitator_reinf;
+    if(data.comment) document.getElementById('sq_ai_comment').textContent='【Claude AI 실무 검토 완료】
+
+'+data.comment+(data.grand_review?'
+
+【AI 권고 견적금액】
+  '+Math.round(data.grand_review).toLocaleString('ko-KR')+'원 (VAT 별도)':'');
+    window._sqAIReviewData=data;
+    document.getElementById('sq-btn-ai').style.display='flex';
+    document.getElementById('sq-btn-eng').style.flex='0 0 auto';
+    btn.style.background='linear-gradient(135deg,#1a5fad,#1a7a40)';
+    btnText.textContent='✅ AI 검토 완료 — 다시 검토하려면 클릭';
+  }catch(e){alert('AI 검토 실패: '+e.message);btnText.textContent='🤖 Claude AI 실무 검토 요청';}
+  finally{btn.disabled=false;btn.style.opacity='1';}
+}
+
+async function sqSubmitQuote(mode='engineering'){
+  const company=document.getElementById('sq_company').value.trim();
+  const contact=document.getElementById('sq_contact').value.trim();
+  const email=document.getElementById('sq_email').value.trim();
+  if(!company||!contact||!email){alert('고객 정보를 모두 입력해주세요.');return;}
+  const res=window._sqCalcResult;
+  if(!res){alert('먼저 탱크 사이즈를 입력해주세요.');return;}
+  if(mode==='ai'&&!window._sqAIReviewData){alert('먼저 AI 검토를 완료해주세요.');return;}
+  const btnId=mode==='ai'?'sq-btn-ai':'sq-btn-eng';
+  const btn=document.getElementById(btnId);
+  const orig=btn.textContent;
+  btn.textContent='⏳ 처리 중...';btn.disabled=true;
+  try{
+    const payload={company,contact,email,tank_type:'square',L:res.L,W:res.W,H:res.H,mat:res.mat,sg:res.sg,ca:res.ca,shape:res.shape,p_ss:parseInt(document.getElementById('sq_p_ss').value),p_304:parseInt(document.getElementById('sq_p_304').value),p_316:parseInt(document.getElementById('sq_p_316').value),paint_ext:document.getElementById('sq_paint_ext_yes').checked,paint_int:document.getElementById('sq_paint_int_yes').checked,mode};
+    if(mode==='ai'&&window._sqAIReviewData) payload.ai_grand_review=window._sqAIReviewData.grand_review;
+    const apiRes=await fetch(SQ_FLASK_URL+'/api/quote-square',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d=await apiRes.json();
+    if(d.success){const label=mode==='ai'?'AI 검토 기준':'공학식 기준';alert(`[${label}] 견적서가 ${email}으로 발송되었습니다!
+
+총 견적금액: ${d.grand.toLocaleString('ko-KR')}원 (VAT 별도)`);}
+    else alert('오류: '+d.message);
+  }catch(e){alert('서버 연결 실패: '+e.message);}
+  finally{btn.textContent=orig;btn.disabled=false;}
+}
+
+function sqResetForm(){
+  ['sq_L','sq_W','sq_H','sq_sg','sq_ca'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('sq_mat').selectedIndex=1;
+  document.getElementById('sq_fluid').selectedIndex=0;
+  sqSelectShape('closed');
+  window._sqCalcResult=null;window._sqAIReviewData=null;
+  document.getElementById('sq-btn-ai').style.display='none';
+  ['BOTTOM','SHELL','ROOF'].forEach(p=>{const el=document.getElementById('sq-ai-'+p);if(el)el.innerHTML='— mm<br><span style="font-size:10px;opacity:.7">AI검토대기</span>';});
+  document.getElementById('sq_ai_comment').textContent='파라미터를 입력하면 Claude가 두께·보강재 적정성 및 금액 합리성을 검토합니다.';
+  document.getElementById('sq-ai-review-btn-text').textContent='🤖 Claude AI 실무 검토 요청';
+  document.getElementById('sq-ai-review-btn').style.background='linear-gradient(135deg,#1a7a40,#1a5fad)';
+}
 </script>
 </body>
 </html>
