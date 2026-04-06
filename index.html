@@ -1791,7 +1791,6 @@ async function sqRequestAIReview() {
     if(data.reinf_recommendation){document.getElementById('sq-reinf-shell').textContent=data.reinf_recommendation;document.getElementById('sq-reinf-shell').style.color='var(--green)';}
     if(data.agitator_reinf&&res.shape==='agitator') document.getElementById('sq-agitator-reinf-ai').textContent='→ AI: '+data.agitator_reinf;
     if(data.comment) document.getElementById('sq_ai_comment').textContent='【Claude AI 실무 검토 완료】\n\n'+data.comment+(data.grand_review?'\n\n【AI 권고 견적금액】\n  '+Math.round(data.grand_review).toLocaleString('ko-KR')+'원 (VAT 별도)':'');
-  '+Math.round(data.grand_review).toLocaleString('ko-KR')+'원 (VAT 별도)':'');
     window._sqAIReviewData=data;
     document.getElementById('sq-btn-ai').style.display='flex';
     document.getElementById('sq-btn-eng').style.flex='0 0 auto';
