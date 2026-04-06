@@ -1677,7 +1677,7 @@ function sqCalc() {
 
   const P_max = sg*9.81*H;
   const sigma=137,eta=0.85,b=Math.max(L,W);
-  const t_shell_req=(P_max*b*1000)/(2*sigma*eta*1000)*1000+ca;
+  const t_shell_req=(P_max*b)/(2*sigma*eta)+ca;
   const t_shell=sqGetCommTh(Math.max(t_shell_req,5+ca));
   const t_bot=sqGetCommTh(Math.max(t_shell+2,6+ca));
   const t_roof=shape!=='open'?sqGetCommTh(Math.max(4+ca,5)):0;
