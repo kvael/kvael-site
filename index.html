@@ -1910,6 +1910,23 @@ function sqResetForm(){
     </div>
   </div>
 
+
+  <!-- 펌프 도면 업로드 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>도면/데이터시트 업로드 (선택) — AI가 유량·양정 자동 인식</div>
+    <div class="fcard-body">
+      <div id="pm-upload-zone" onclick="document.getElementById('pm_file_input').click()"
+        style="border:2px dashed var(--border2);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)">
+        <div style="font-size:28px;margin-bottom:8px">📄</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text2)" id="pm-upload-title">PDF 또는 이미지(JPG/PNG)를 클릭하여 업로드</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">AI가 유량·양정을 읽어 자동 입력합니다</div>
+      </div>
+      <input type="file" id="pm_file_input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="pmHandleFile(this.files[0])">
+      <div style="margin-top:8px;background:var(--orange-lt);border:1px solid var(--orange-bd);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--orange);line-height:1.6">
+        ⚠ AI가 인식한 데이터를 반드시 확인하세요. 오인식이 있을 수 있으므로 아래 입력값을 직접 검토 후 발송해주세요.
+      </div>
+    </div>
+  </div>
   <!-- 펌프 사양 입력 테이블 -->
   <div class="fcard">
     <div class="fcard-hdr"><div class="fdot" style="background:#1a7a40"></div>펌프 사양 입력 — 여러 대 동시 견적 가능</div>
@@ -2075,6 +2092,60 @@ async function pmSubmit(){
   }finally{
     btn.textContent='🤖 AI 펌프 견적 요청 및 이메일 발송';
     btn.disabled=false;
+  }
+}
+
+async function pmHandleFile(file) {
+  if(!file) return;
+  const allowed = ['application/pdf','image/jpeg','image/jpg','image/png'];
+  if(!allowed.includes(file.type)){alert('PDF, JPG, PNG 파일만 가능합니다.');return;}
+
+  const zone = document.getElementById('pm-upload-zone');
+  const title = document.getElementById('pm-upload-title');
+  zone.style.background = 'var(--light-blue)';
+  zone.style.borderColor = 'var(--primary)';
+  title.textContent = '⏳ AI 분석 중...';
+
+  try {
+    const b64 = await new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result.split(',')[1]);
+      r.onerror = ()=>rej(new Error('파일 읽기 실패'));
+      r.readAsDataURL(file);
+    });
+    const fileType = file.type === 'application/pdf' ? 'pdf' : 'image';
+    const resp = await fetch(PM_FLASK_URL+'/api/analyze-pump', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pdf_base64: b64, file_type: fileType})
+    });
+    const d = await resp.json();
+    if(!d.found) throw new Error(d.error||'인식 실패');
+
+    // 인식된 펌프 데이터로 행 채우기
+    const pumps = d.pumps || [];
+    if(pumps.length > 0) {
+      // 기존 행 초기화
+      document.getElementById('pm-tbody').innerHTML = '';
+      pmRowCount = 0;
+      pumps.forEach(p => {
+        pmAddRow();
+        const n = pmRowCount;
+        if(p.flow) document.getElementById('pm-flow-'+n).value = p.flow;
+        if(p.head) document.getElementById('pm-head-'+n).value = p.head;
+        if(p.qty)  document.getElementById('pm-qty-'+n).value  = p.qty;
+        if(p.note) document.getElementById('pm-note-'+n).value = p.note;
+      });
+      title.textContent = '✅ ' + file.name + ' — ' + pumps.length + '개 펌프 인식 완료 (반드시 확인하세요!)';
+      zone.style.background = 'var(--green-lt)';
+      zone.style.borderColor = 'var(--green)';
+    } else {
+      throw new Error('펌프 데이터를 찾을 수 없습니다');
+    }
+  } catch(e) {
+    title.textContent = '❌ 인식 실패 — 직접 입력해주세요';
+    zone.style.background = 'var(--orange-lt)';
+    zone.style.borderColor = 'var(--orange)';
+    alert('AI 인식 실패: ' + e.message + '\n\n직접 입력해주세요.');
   }
 }
 function pmReset(){
