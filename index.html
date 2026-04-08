@@ -1194,6 +1194,7 @@ const FLASK_URL = 'https://api.kvael.co.kr';
 
 // ── 페이지 전환 ──
 function showPage(name) {
+if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(name);
   if (target) { target.classList.add('active'); window.scrollTo(0,0); }
