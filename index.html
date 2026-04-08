@@ -362,6 +362,10 @@ select option{background:#fff}
             <div class="dd-icon">⬜</div>
             <div><div class="dd-label">사각 탱크</div><div class="dd-sub">수압계산 · 자동 견적</div></div>
           </button>
+          <button class="dd-item" onclick="showPage('quote-pump');closeDropdown()">
+            <div class="dd-icon">🔄</div>
+            <div><div class="dd-label">펌프</div><div class="dd-sub">AI 모델 선정 · 자동 견적</div></div>
+          </button>
         </div>
       </div>
       <div class="nav-item"><button class="nav-link" onclick="showPage('support')">고객 지원</button></div>
@@ -382,6 +386,7 @@ select option{background:#fff}
   <button class="mob-sub" onclick="showPage('quote-round');closeMenu()">⭕ 원형 탱크</button>
   <button class="mob-sub" onclick="showPage('wip');closeMenu()">🔩 배관 공사 (준비중)</button>
   <button class="mob-sub" onclick="showPage('quote-square');closeMenu()">⬜ 사각 탱크</button>
+  <button class="mob-sub" onclick="showPage('quote-pump');closeMenu()">🔄 펌프</button>
   <div class="mob-divider"></div>
   <button class="mob-item" onclick="showPage('support');closeMenu()">고객 지원</button>
   <button class="mob-item" style="color:var(--primary);font-weight:700" onclick="showPage('quote-round');closeMenu()">무료 견적 요청 →</button>
@@ -1844,5 +1849,241 @@ function sqResetForm(){
   document.getElementById('sq-ai-review-btn').style.background='linear-gradient(135deg,#1a7a40,#1a5fad)';
 }
 </script>
+
+<!-- ══════════════ 펌프 견적 ══════════════ -->
+<div id="quote-pump" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner">
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">펌프 AI 견적 시스템</div>
+    <div class="qp-sub">K-VAEL · Claude AI 기반 펌프 모델 선정 · 참고용 견적 자동 발송</div>
+  </div>
+  <div class="notice-bar">
+    ⚠ 본 견적은 <strong>참고용(Budgetary)</strong>이며 실제 금액과 차이가 있을 수 있습니다.
+    AI가 시장 평균 단가 기준으로 산출하며, 정확한 견적은 K-VAEL 담당자에게 문의해 주세요.
+  </div>
+
+  <!-- 고객 정보 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a5fad"></div>고객 정보</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>회사명</label><input type="text" id="pm_company" placeholder="(주)고객사명"></div>
+        <div class="field"><label>담당자명</label><input type="text" id="pm_contact" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (견적서 수신)</label><input type="email" id="pm_email" placeholder="email@company.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 펌프 타입 가이드 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>펌프 타입별 설명 (참고)</div>
+    <div class="fcard-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px">🔄 원심 버티칼 (Vertical)</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">수직형 원심펌프. 청수/폐수/일반 액체 이송. 설치 공간이 적고 유지보수 용이.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px">➡️ 원심 호리젠탈 (Horizontal)</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">수평형 원심펌프. 대용량 이송, 배관 연결 용이. 고양정·고유량에 적합.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px">🌀 모노펌프 (Mono)</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">나선형 회전자. 슬러지/고점도/이물질 함유 액체에 적합. 정량 이송 가능.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px">💨 다이아프램 에어 (Air)</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">압축공기 구동. 폭발위험 지역, 전기 사용 불가 환경. 자흡 능력 우수.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px">🧪 다이아프램 약품 (Chemical)</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">전동식. 정량 약품 주입, 부식성/독성 유체에 적합. 역류 방지 기능.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px">🏊 수중펌프 (Submersible)</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">액체 내 침수 설치. 집수정/오수/우수 펌핑. 별도 흡입관 불필요.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 펌프 사양 입력 테이블 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a7a40"></div>펌프 사양 입력 — 여러 대 동시 견적 가능</div>
+    <div class="fcard-body">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:900px">
+          <thead>
+            <tr>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">No.</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">펌프 타입</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">유체 종류</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">유량 (m³/hr)</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">양정 (m)</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">입액부 재질</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">전압</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">수량</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">비고</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center"></th>
+            </tr>
+          </thead>
+          <tbody id="pm-tbody"></tbody>
+        </table>
+      </div>
+      <button onclick="pmAddRow()" style="display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 14px;background:var(--light-blue);border:1px dashed var(--blue-bd);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--primary);width:100%;justify-content:center;border-style:dashed;font-family:'Pretendard',sans-serif">
+        ＋ 펌프 항목 추가
+      </button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="pm-result-box" style="background:var(--green-lt);border:1px solid var(--green-bd);border-radius:10px;padding:16px;margin-bottom:12px;display:none">
+    <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">🤖 Claude AI 펌프 선정 결과</div>
+    <div id="pm-result-list"></div>
+    <div style="background:var(--primary);border-radius:8px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.85)">총 참고 견적금액 (VAT 별도)</div>
+      <div style="font-size:20px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace" id="pm-total-price">—</div>
+    </div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="fbtn-wrap">
+    <button class="fbtn fbtn-reset" onclick="pmReset()">↺ 초기화</button>
+    <button class="fbtn fbtn-submit" id="pm-submit-btn" onclick="pmSubmit()">🤖 AI 펌프 견적 요청 및 이메일 발송</button>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</div>
+</div><!-- /quote-pump page -->
+
+<script>
+// ════════════════════════════════════
+// 펌프 견적 JS
+// ════════════════════════════════════
+const PM_FLASK_URL = 'https://api.kvael.co.kr';
+let pmRowCount = 0;
+const PUMP_TYPES = ['원심펌프 (버티칼)','원심펌프 (호리젠탈)','모노펌프','다이아프램 (에어)','다이아프램 (약품)','수중펌프'];
+const PUMP_FLUIDS = ['청수','폐수','화학약품','슬러지','해수','오일','기타'];
+const PUMP_MATERIALS = ['AI 자동선정','STS304','STS316','Cast Iron','PVDF','PP','Bronze'];
+const PUMP_VOLTAGES = ['3상 380V 60Hz','단상 220V 60Hz','3상 440V 60Hz','3상 380V 50Hz'];
+
+function pmAddRow() {
+  pmRowCount++;
+  const n = pmRowCount;
+  const tbody = document.getElementById('pm-tbody');
+  const tr = document.createElement('tr');
+  tr.id = 'pm-row-' + n;
+  tr.style.borderBottom = '1px solid var(--border)';
+  tr.innerHTML = `
+    <td style="text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:6px 4px">${n}</td>
+    <td style="padding:4px"><select id="pm-type-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:140px">
+      ${PUMP_TYPES.map(t=>`<option value="${t}">${t}</option>`).join('')}
+    </select></td>
+    <td style="padding:4px"><select id="pm-fluid-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:90px">
+      ${PUMP_FLUIDS.map(f=>`<option value="${f}">${f}</option>`).join('')}
+    </select></td>
+    <td style="padding:4px"><input type="number" id="pm-flow-${n}" placeholder="예:10" step="0.1" min="0.1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:75px"></td>
+    <td style="padding:4px"><input type="number" id="pm-head-${n}" placeholder="예:20" step="1" min="1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:65px"></td>
+    <td style="padding:4px"><select id="pm-mat-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:110px">
+      ${PUMP_MATERIALS.map(m=>`<option value="${m}">${m}</option>`).join('')}
+    </select></td>
+    <td style="padding:4px"><select id="pm-volt-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:120px">
+      ${PUMP_VOLTAGES.map(v=>`<option value="${v}">${v}</option>`).join('')}
+    </select></td>
+    <td style="padding:4px"><input type="number" id="pm-qty-${n}" value="1" step="1" min="1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:50px"></td>
+    <td style="padding:4px"><input type="text" id="pm-note-${n}" placeholder="특이사항" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;min-width:90px"></td>
+    <td style="padding:4px;text-align:center"><button onclick="pmDelRow(${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:14px;padding:4px 6px;border-radius:4px">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+function pmDelRow(n){
+  const tr=document.getElementById('pm-row-'+n);
+  if(tr)tr.remove();
+  if(document.getElementById('pm-tbody').children.length===0)pmAddRow();
+}
+function pmGetRows(){
+  const rows=[];
+  Array.from(document.getElementById('pm-tbody').children).forEach(tr=>{
+    const n=tr.id.replace('pm-row-','');
+    const flow=parseFloat(document.getElementById('pm-flow-'+n)?.value)||0;
+    const head=parseFloat(document.getElementById('pm-head-'+n)?.value)||0;
+    if(!flow||!head)return;
+    rows.push({
+      pump_type:document.getElementById('pm-type-'+n)?.value,
+      fluid:document.getElementById('pm-fluid-'+n)?.value,
+      flow,head,
+      material:document.getElementById('pm-mat-'+n)?.value,
+      voltage:document.getElementById('pm-volt-'+n)?.value,
+      qty:parseInt(document.getElementById('pm-qty-'+n)?.value)||1,
+      note:document.getElementById('pm-note-'+n)?.value||'',
+    });
+  });
+  return rows;
+}
+async function pmSubmit(){
+  const company=document.getElementById('pm_company').value.trim();
+  const contact=document.getElementById('pm_contact').value.trim();
+  const email=document.getElementById('pm_email').value.trim();
+  if(!company||!contact||!email){alert('고객 정보를 모두 입력해주세요.');return;}
+  const rows=pmGetRows();
+  if(rows.length===0){alert('유량과 양정을 입력해주세요.');return;}
+  const btn=document.getElementById('pm-submit-btn');
+  btn.textContent='⏳ AI 분석 중... ('+rows.length+'개 펌프, 20~40초 소요)';
+  btn.disabled=true;
+  try{
+    const res=await fetch(PM_FLASK_URL+'/api/quote-pump',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({company,contact,email,pumps:rows})
+    });
+    const d=await res.json();
+    if(!d.success)throw new Error(d.message||'오류 발생');
+    const resultList=document.getElementById('pm-result-list');
+    resultList.innerHTML='';
+    let totalPrice=0;
+    d.results.forEach((r,idx)=>{
+      const row=rows[idx];
+      totalPrice+=(r.total_price||0);
+      const div=document.createElement('div');
+      div.style.cssText='background:#fff;border:1px solid var(--green-bd);border-radius:8px;padding:12px 14px;margin-bottom:8px';
+      div.innerHTML=`
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--green-bd);padding-bottom:6px">
+          No.${idx+1} — ${row.pump_type} | ${row.flow}m³/hr × ${row.head}m | ${row.fluid}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">선정 모델</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.model_name||'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">제조사</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.manufacturer||'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">모터출력</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.motor_power_kw?r.motor_power_kw+'kW':'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">선정 재질</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.selected_material||row.material}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">납기</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.lead_time||'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">수량</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${row.qty} SET</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">단가</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.unit_price?Math.round(r.unit_price).toLocaleString('ko-KR')+'원':'별도협의'}</div></div>
+          <div style="background:var(--light-blue);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">소계</div><div style="font-size:12px;font-weight:700;color:var(--primary)">${r.total_price?Math.round(r.total_price).toLocaleString('ko-KR')+'원':'별도협의'}</div></div>
+        </div>
+        <div style="font-size:11px;color:#1a5530;line-height:1.7;background:var(--green-lt);border-radius:6px;padding:8px 10px">${r.engineering_notes||''}</div>
+        ${r.warning?'<div style="background:var(--orange-lt);border:1px solid var(--orange-bd);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--orange);margin-top:6px">⚠ '+r.warning+'</div>':''}
+      `;
+      resultList.appendChild(div);
+    });
+    document.getElementById('pm-total-price').textContent=totalPrice>0?totalPrice.toLocaleString('ko-KR')+'원':'별도 협의';
+    document.getElementById('pm-result-box').style.display='block';
+    alert('AI 펌프 견적서가 '+email+'으로 발송되었습니다!');
+  }catch(e){
+    alert('오류: '+e.message);
+  }finally{
+    btn.textContent='🤖 AI 펌프 견적 요청 및 이메일 발송';
+    btn.disabled=false;
+  }
+}
+function pmReset(){
+  ['pm_company','pm_contact','pm_email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('pm-tbody').innerHTML='';
+  pmRowCount=0;
+  for(let i=0;i<5;i++)pmAddRow();
+  document.getElementById('pm-result-box').style.display='none';
+}
+</script>
+
 </body>
 </html>
