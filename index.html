@@ -759,8 +759,8 @@ select option{background:#fff}
       </div>
 
       <div class="g3">
-        <div class="field"><label>직경 D (m)</label><input type="number" id="dia" placeholder="예: 3.5" step="0.1" oninput="calc()"></div>
-        <div class="field"><label>높이 H (m)</label><input type="number" id="ht" placeholder="예: 5.0" step="0.1" oninput="calc()"></div>
+        <div class="field"><label>직경 D (m)</label><input type="number" id="dia" placeholder="" step="0.1" oninput="calc()"></div>
+        <div class="field"><label>높이 H (m)</label><input type="number" id="ht" placeholder="" step="0.1" oninput="calc()"></div>
         <div class="field"><label>재질</label>
           <select id="mat" onchange="calc()">
             <option value="SS275">SS275 (SS400)</option>
@@ -1053,16 +1053,16 @@ select option{background:#fff}
           </div>
           <div class="field">
             <label>교반기 용량 (kW)</label>
-            <input type="number" id="sq_agitator_kw" placeholder="예: 3.7" step="0.1" oninput="sqCalc()">
+            <input type="number" id="sq_agitator_kw" placeholder="" step="0.1" oninput="sqCalc()">
           </div>
         </div>
       </div>
 
       <!-- 치수 -->
       <div class="g3" style="margin-bottom:12px">
-        <div class="field"><label>가로 L (m)</label><input type="number" id="sq_L" placeholder="예: 2.0" step="0.1" oninput="sqCalc()"></div>
-        <div class="field"><label>세로 W (m)</label><input type="number" id="sq_W" placeholder="예: 2.0" step="0.1" oninput="sqCalc()"></div>
-        <div class="field"><label>높이 H (m)</label><input type="number" id="sq_H" placeholder="예: 2.0" step="0.1" oninput="sqCalc()"></div>
+        <div class="field"><label>가로 L (m)</label><input type="number" id="sq_L" placeholder="" step="0.1" oninput="sqCalc()"></div>
+        <div class="field"><label>세로 W (m)</label><input type="number" id="sq_W" placeholder="" step="0.1" oninput="sqCalc()"></div>
+        <div class="field"><label>높이 H (m)</label><input type="number" id="sq_H" placeholder="" step="0.1" oninput="sqCalc()"></div>
       </div>
 
       <div class="g4">
@@ -2076,8 +2076,8 @@ function pmAddRow() {
     <td style="padding:4px"><select id="pm-fluid-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:90px">
       ${PUMP_FLUIDS.map(f=>`<option value="${f}">${f}</option>`).join('')}
     </select></td>
-    <td style="padding:4px"><input type="number" id="pm-flow-${n}" placeholder="예:10" step="0.1" min="0.1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:75px"></td>
-    <td style="padding:4px"><input type="number" id="pm-head-${n}" placeholder="예:20" step="1" min="1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:65px"></td>
+    <td style="padding:4px"><input type="number" id="pm-flow-${n}" placeholder="" step="0.1" min="0.1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:75px"></td>
+    <td style="padding:4px"><input type="number" id="pm-head-${n}" placeholder="" step="1" min="1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:65px"></td>
     <td style="padding:4px"><select id="pm-mat-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:110px">
       ${PUMP_MATERIALS.map(m=>`<option value="${m}">${m}</option>`).join('')}
     </select></td>
@@ -2389,7 +2389,7 @@ function inAddRow(data) {
     </select></td>
     <td style="padding:4px">
       <div style="display:flex;gap:4px;align-items:center">
-        <input type="text" id="in-size-${n}" placeholder="${INST_SIZE_HINT[defaultType]||'규격'}" value="${data?.size||''}" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px">
+        <input type="text" id="in-size-${n}" placeholder="" value="${data?.size||''}" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px">
         <button onclick="inShowFlowCalc(${n})" id="in-flow-btn-${n}" title="유량으로 구경 계산" style="display:${defaultType==='Flow Meter'?'flex':'none'};background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:5px;padding:4px 6px;font-size:10px;cursor:pointer;white-space:nowrap;align-items:center;gap:2px;font-family:'Pretendard',sans-serif;color:var(--primary)">📐 유량→구경</button>
       </div>
       <div id="in-flow-calc-${n}" style="display:none;margin-top:4px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:6px;padding:6px 8px">
@@ -2454,7 +2454,7 @@ function inGetRows() {
       qty:       parseInt(document.getElementById('in-qty-'+n)?.value)||1,
       note:      document.getElementById('in-note-'+n)?.value||'',
     };
-  }).filter(r=>r.inst_type);
+  }).filter(r=>r.inst_type && r.size.trim()!=='');
 }
 async function inHandleFile(file) {
   if(!file) return;
