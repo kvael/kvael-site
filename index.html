@@ -1262,6 +1262,7 @@ if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElement
 if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
 if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
 if(name==='quote-round') setupDragDrop('upload-zone','file_input',handleFile);
+if(name==='quote-square') setupDragDrop('sq-upload-zone','sq_file_input',sqHandleFile);
 if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){inAddRow();}
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(name);
