@@ -1259,7 +1259,7 @@ const FLASK_URL = 'https://api.kvael.co.kr';
 // ── 페이지 전환 ──
 function showPage(name) {
 if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
-if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){for(let i=0;i<5;i++)inAddRow();}
+if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){inAddRow();}
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(name);
   if (target) { target.classList.add('active'); window.scrollTo(0,0); }
@@ -2522,7 +2522,7 @@ async function inSubmit() {
 function inReset(){
   ['in_company','in_contact','in_email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('in-tbody').innerHTML='';inRowCount=0;
-  for(let i=0;i<5;i++) inAddRow();
+  inAddRow();
   document.getElementById('in-result-box').style.display='none';
   const zone=document.getElementById('in-upload-zone');
   zone.style.background='var(--bg)';zone.style.borderColor='var(--border2)';
