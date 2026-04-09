@@ -370,9 +370,9 @@ select option{background:#fff}
             <div class="dd-icon">🔄</div>
             <div><div class="dd-label">Pump</div><div class="dd-sub">AI 모델 선정 · 자동 견적</div></div>
           </button>
-          <button class="dd-item" onclick="showPage('wip');closeDropdown()">
+          <button class="dd-item" onclick="showPage('quote-instrument');closeDropdown()">
             <div class="dd-icon">📊</div>
-            <div><div class="dd-label">Instrument</div><div class="dd-sub">준비 중</div></div>
+            <div><div class="dd-label">Instrument</div><div class="dd-sub">DB 기반 · 자동 견적</div></div>
           </button>
           <button class="dd-item" onclick="showPage('wip');closeDropdown()">
             <div class="dd-icon">🌀</div>
@@ -1259,6 +1259,7 @@ const FLASK_URL = 'https://api.kvael.co.kr';
 // ── 페이지 전환 ──
 function showPage(name) {
 if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
+if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){for(let i=0;i<5;i++)inAddRow();}
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(name);
   if (target) { target.classList.add('active'); window.scrollTo(0,0); }
@@ -2227,6 +2228,266 @@ function pmReset(){
   pmRowCount=0;
   for(let i=0;i<5;i++)pmAddRow();
   document.getElementById('pm-result-box').style.display='none';
+}
+</script>
+
+<!-- ══════════════ 계장기기 견적 ══════════════ -->
+<div id="quote-instrument" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner">
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">계장기기 AI 견적 시스템</div>
+    <div class="qp-sub">K-VAEL · DB 기반 계장기기 사양 조회 · 참고용 견적 자동 발송</div>
+  </div>
+  <div class="notice-bar">
+    ⚠ 본 견적은 <strong>참고용(Budgetary)</strong>이며 실제 금액과 차이가 있을 수 있습니다.
+    단가 DB 기준으로 산출하며, 정확한 견적은 K-VAEL 담당자에게 문의해 주세요.
+  </div>
+
+  <!-- 고객 정보 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a5fad"></div>고객 정보</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>회사명</label><input type="text" id="in_company" placeholder="(주)고객사명"></div>
+        <div class="field"><label>담당자명</label><input type="text" id="in_contact" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (견적서 수신)</label><input type="email" id="in_email" placeholder="email@company.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기기 타입 가이드 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>계장기기 타입 안내</div>
+    <div class="fcard-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:#6030a8;margin-bottom:3px">📊 Flow Meter</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">전자식(Electromagnetic), 초음파(Ultrasonic). 유량 측정. 구경(15A~400A) 선택.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:#6030a8;margin-bottom:3px">🧪 수질 센서</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">pH, DO, Conductivity, ORP, MLSS, Turbidity. 공정 수질 모니터링 및 환경 계측에 사용.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:#6030a8;margin-bottom:3px">🌡️ P/T Transmitter</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">압력(Pressure), 온도(Temperature) 측정. 4-20mA 출력. Flange/Screw 타입.</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+          <div style="font-size:11px;font-weight:700;color:#6030a8;margin-bottom:3px">📏 Level 기기</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">Hydrostatic/Ultrasonic/Radar Transmitter, Float/Electrode Switch. 액위 측정.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF/이미지 업로드 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b85c00"></div>계장 리스트 업로드 (선택) — AI가 자동 인식</div>
+    <div class="fcard-body">
+      <div id="in-upload-zone" onclick="document.getElementById('in_file_input').click()"
+        style="border:2px dashed var(--border2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)">
+        <div style="font-size:28px;margin-bottom:8px">📋</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text2)" id="in-upload-title">PDF 또는 이미지(JPG/PNG)를 클릭하여 업로드</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">계장 리스트(Tag No., 기기명, 구경/범위, 수량)를 AI가 자동으로 읽어 입력합니다</div>
+      </div>
+      <input type="file" id="in_file_input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="inHandleFile(this.files[0])">
+      <div style="margin-top:8px;background:var(--orange-lt);border:1px solid var(--orange-bd);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--orange);line-height:1.6">
+        ⚠ AI가 인식한 데이터를 반드시 확인하세요. 오인식이 있을 수 있으므로 아래 입력값을 직접 검토 후 발송해주세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 계장기기 입력 테이블 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a7a40"></div>계장기기 사양 입력 — 여러 개 동시 견적 가능</div>
+    <div class="fcard-body">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:900px">
+          <thead>
+            <tr>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">No.</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">Tag No.</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">기기 종류</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">측정방식 / 타입</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">구경 / 범위</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">수량</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center">비고</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center"></th>
+            </tr>
+          </thead>
+          <tbody id="in-tbody"></tbody>
+        </table>
+      </div>
+      <button onclick="inAddRow()" style="display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 14px;background:var(--purple-lt,#f3eeff);border:1px dashed #c9a8f5;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#6030a8;width:100%;justify-content:center;font-family:'Pretendard',sans-serif">
+        ＋ 계장기기 항목 추가
+      </button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="in-result-box" style="background:var(--green-lt);border:1px solid var(--green-bd);border-radius:10px;padding:16px;margin-bottom:12px;display:none">
+    <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">📊 계장기기 견적 결과</div>
+    <div id="in-result-list"></div>
+    <div style="background:var(--primary);border-radius:8px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.85)">총 참고 견적금액 (VAT 별도)</div>
+      <div style="font-size:20px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace" id="in-total-price">—</div>
+    </div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="fbtn-wrap">
+    <button class="fbtn fbtn-reset" onclick="inReset()">↺ 초기화</button>
+    <button class="fbtn fbtn-submit" id="in-submit-btn" onclick="inSubmit()" style="background:linear-gradient(135deg,#6030a8,#1a5fad)">
+      📊 계장기기 견적 요청 및 이메일 발송
+    </button>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</div>
+</div><!-- /quote-instrument page -->
+
+<script>
+const IN_FLASK_URL = 'https://api.kvael.co.kr';
+let inRowCount = 0;
+const INST_TYPES = {
+  'Flow Meter': ['Electromagnetic (전자식)', 'Ultrasonic (초음파)'],
+  'pH Sensor': ['Glass Electrode (유리전극)'],
+  'DO Sensor': ['Optical (광학식)'],
+  'Conductivity Sensor': ['4-Electrode (4전극식)'],
+  'ORP Sensor': ['Platinum Electrode (백금전극)'],
+  'MLSS Sensor': ['Optical (광학식/투과형)'],
+  'Turbidity Meter': ['Nephelometric (산란광)'],
+  'Pressure Transmitter': ['Piezo-Flange Type', 'Piezo-Screw Type'],
+  'Temperature Transmitter': ['RTD (PT100)'],
+  'Level Transmitter': ['Hydrostatic (압력식)', 'Ultrasonic (초음파)', 'Radar (레이더)'],
+  'Level Switch': ['Float', 'Electrode'],
+};
+const INST_SIZE_HINT = {
+  'Flow Meter':'예: 50A, 100A','Level Transmitter':'예: 0~5m','Pressure Transmitter':'예: 0~10bar',
+  'Temperature Transmitter':'예: 0~100℃','pH Sensor':'0~14','DO Sensor':'0~20mg/L',
+  'Conductivity Sensor':'1~200mS/cm','ORP Sensor':'-500~+500mV','MLSS Sensor':'표준형',
+  'Turbidity Meter':'표준형','Level Switch':'예: 4Point 3m',
+};
+function inAddRow(data) {
+  inRowCount++;
+  const n = inRowCount;
+  const tbody = document.getElementById('in-tbody');
+  const tr = document.createElement('tr');
+  tr.id = 'in-row-' + n;
+  const defaultType = data?.inst_type || 'Flow Meter';
+  const meterOpts = INST_TYPES[defaultType].map(m=>`<option value="${m}">${m}</option>`).join('');
+  tr.innerHTML = `
+    <td style="text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:6px 4px;width:30px">${n}</td>
+    <td style="padding:4px"><input type="text" id="in-tag-${n}" placeholder="FT-001" value="${data?.tag||''}" style="width:75px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
+    <td style="padding:4px"><select id="in-type-${n}" onchange="inUpdateMeter(${n})" style="min-width:150px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;font-family:'Pretendard',sans-serif">
+      ${Object.keys(INST_TYPES).map(t=>`<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
+    </select></td>
+    <td style="padding:4px"><select id="in-meter-${n}" style="min-width:160px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;font-family:'Pretendard',sans-serif">
+      ${meterOpts}
+    </select></td>
+    <td style="padding:4px"><input type="text" id="in-size-${n}" placeholder="${INST_SIZE_HINT[defaultType]||'규격'}" value="${data?.size||''}" style="min-width:90px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
+    <td style="padding:4px"><input type="number" id="in-qty-${n}" value="${data?.qty||1}" min="1" style="width:50px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
+    <td style="padding:4px"><input type="text" id="in-note-${n}" placeholder="특이사항" value="${data?.note||''}" style="min-width:80px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
+    <td style="padding:4px;text-align:center"><button onclick="inDelRow(${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:14px;padding:4px 6px">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+function inUpdateMeter(n) {
+  const type = document.getElementById('in-type-'+n).value;
+  document.getElementById('in-meter-'+n).innerHTML = INST_TYPES[type].map(m=>`<option value="${m}">${m}</option>`).join('');
+  document.getElementById('in-size-'+n).placeholder = INST_SIZE_HINT[type]||'규격';
+}
+function inDelRow(n) {
+  const tr = document.getElementById('in-row-'+n);
+  if(tr) tr.remove();
+  if(document.getElementById('in-tbody').children.length===0) inAddRow();
+}
+function inGetRows() {
+  return Array.from(document.getElementById('in-tbody').children).map(tr=>{
+    const n=tr.id.replace('in-row-','');
+    return {
+      tag:       document.getElementById('in-tag-'+n)?.value||'',
+      inst_type: document.getElementById('in-type-'+n)?.value||'',
+      meter_type:document.getElementById('in-meter-'+n)?.value||'',
+      size:      document.getElementById('in-size-'+n)?.value||'',
+      qty:       parseInt(document.getElementById('in-qty-'+n)?.value)||1,
+      note:      document.getElementById('in-note-'+n)?.value||'',
+    };
+  }).filter(r=>r.inst_type);
+}
+async function inHandleFile(file) {
+  if(!file) return;
+  const zone=document.getElementById('in-upload-zone');
+  const title=document.getElementById('in-upload-title');
+  zone.style.background='#f3eeff';zone.style.borderColor='#6030a8';
+  title.textContent='⏳ AI 분석 중...';
+  try {
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('실패'));r.readAsDataURL(file);});
+    const resp=await fetch(IN_FLASK_URL+'/api/analyze-instrument',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pdf_base64:b64,file_type:file.type==='application/pdf'?'pdf':'image'})});
+    const d=await resp.json();
+    if(!d.found) throw new Error(d.error||'인식 실패');
+    const insts=d.instruments||[];
+    if(insts.length>0){
+      document.getElementById('in-tbody').innerHTML='';inRowCount=0;
+      insts.forEach(p=>inAddRow(p));
+      title.textContent='✅ '+file.name+' — '+insts.length+'개 인식 완료 (반드시 확인하세요!)';
+      zone.style.background='var(--green-lt)';zone.style.borderColor='var(--green)';
+    } else throw new Error('데이터 없음');
+  } catch(e) {
+    title.textContent='❌ 인식 실패 — 직접 입력해주세요';
+    zone.style.background='var(--orange-lt)';zone.style.borderColor='var(--orange)';
+    alert('AI 인식 실패: '+e.message);
+  }
+}
+async function inSubmit() {
+  const company=document.getElementById('in_company').value.trim();
+  const contact=document.getElementById('in_contact').value.trim();
+  const email=document.getElementById('in_email').value.trim();
+  if(!company||!contact||!email){alert('고객 정보를 모두 입력해주세요.');return;}
+  const rows=inGetRows();
+  if(rows.length===0){alert('계장기기 항목을 입력해주세요.');return;}
+  const btn=document.getElementById('in-submit-btn');
+  btn.textContent='⏳ 처리 중... ('+rows.length+'개 항목)';btn.disabled=true;
+  try {
+    const res=await fetch(IN_FLASK_URL+'/api/quote-instrument',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company,contact,email,instruments:rows})});
+    const d=await res.json();
+    if(!d.success) throw new Error(d.message||'오류');
+    const list=document.getElementById('in-result-list');list.innerHTML='';
+    let total=0;
+    d.results.forEach((r,idx)=>{
+      const row=rows[idx];total+=(r.total_price||0);
+      const div=document.createElement('div');
+      div.style.cssText='background:#fff;border:1px solid var(--green-bd);border-radius:8px;padding:12px 14px;margin-bottom:8px';
+      div.innerHTML=`
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--green-bd);padding-bottom:6px">
+          ${row.tag?'['+row.tag+'] ':''}No.${idx+1} — ${r.inst_type} | ${r.meter_type} | ${r.size}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">원산지</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.origin||'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">수량</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${row.qty} EA</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">단가</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.unit_price?Math.round(r.unit_price).toLocaleString('ko-KR')+'원':'DB 미등록'}</div></div>
+          <div style="background:var(--light-blue);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">소계</div><div style="font-size:12px;font-weight:700;color:var(--primary)">${r.total_price?Math.round(r.total_price).toLocaleString('ko-KR')+'원':'별도협의'}</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);background:var(--bg);border-radius:6px;padding:7px 10px">${r.remark||''} ${r.source==='AI'?'<span style="color:var(--orange);font-size:10px">(AI 추정)</span>':''}</div>
+      `;
+      list.appendChild(div);
+    });
+    document.getElementById('in-total-price').textContent=total>0?total.toLocaleString('ko-KR')+'원':'별도 협의';
+    document.getElementById('in-result-box').style.display='block';
+    alert('계장기기 견적서가 '+email+'으로 발송되었습니다!');
+  } catch(e){alert('오류: '+e.message);}
+  finally{btn.textContent='📊 계장기기 견적 요청 및 이메일 발송';btn.disabled=false;}
+}
+function inReset(){
+  ['in_company','in_contact','in_email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('in-tbody').innerHTML='';inRowCount=0;
+  for(let i=0;i<5;i++) inAddRow();
+  document.getElementById('in-result-box').style.display='none';
+  const zone=document.getElementById('in-upload-zone');
+  zone.style.background='var(--bg)';zone.style.borderColor='var(--border2)';
+  document.getElementById('in-upload-title').textContent='PDF 또는 이미지(JPG/PNG)를 클릭하여 업로드';
 }
 </script>
 
