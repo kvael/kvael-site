@@ -1276,6 +1276,7 @@ function toggleDropdown(id) {
   id = id || 'dd-tank';
   const dd  = document.getElementById(id);
   const btn = document.getElementById('quote-nav-btn');
+  if(!dd) return;
   const isOpen = dd.classList.contains('open');
   closeDropdown();
   if (!isOpen) {
