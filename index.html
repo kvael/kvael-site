@@ -985,7 +985,25 @@ select option{background:#fff}
     <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>탱크 기본 사양</div>
     <div class="fcard-body">
 
-      <!-- 탱크 형태 선택 -->
+    
+  <!-- 도면 업로드 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b85c00"></div>도면 업로드 (선택) — PDF/이미지 업로드 시 치수 자동 인식</div>
+    <div class="fcard-body">
+      <div id="sq-upload-zone" onclick="document.getElementById('sq_file_input').click()"
+        style="border:2px dashed var(--border2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)">
+        <div style="font-size:28px;margin-bottom:8px">📐</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text2)" id="sq-upload-title">PDF 또는 이미지(JPG/PNG)를 클릭하거나 드래그하여 업로드</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">AI가 도면에서 가로(L)×세로(W)×높이(H) 치수를 자동으로 읽어 입력합니다</div>
+      </div>
+      <input type="file" id="sq_file_input" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="sqHandleFile(this.files[0])">
+      <div style="margin-top:8px;background:var(--orange-lt);border:1px solid var(--orange-bd);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--orange)">
+        ⚠ AI가 인식한 치수를 반드시 확인하세요. 오인식이 있을 수 있습니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 탱크 형태 선택 -->
       <div style="margin-bottom:14px">
         <label style="font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px">탱크 형태 선택</label>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
@@ -1261,6 +1279,7 @@ function showPage(name) {
 if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
 if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
 if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
+if(name==='quote-square') setupDragDrop('sq-upload-zone','sq_file_input',sqHandleFile);
 if(name==='quote-round') setupDragDrop('upload_zone','file_input',handlePDF);
 if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){inAddRow();}
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1691,6 +1710,42 @@ const sqWon = n => Math.round(n).toLocaleString('ko-KR') + '원';
 const sqKg  = n => Math.round(n).toLocaleString('ko-KR') + 'kg';
 const sqRaw = n => Math.round(n).toLocaleString('ko-KR');
 
+
+async function sqHandleFile(file) {
+  if(!file) return;
+  const zone = document.getElementById('sq-upload-zone');
+  const title = document.getElementById('sq-upload-title');
+  zone.style.background = 'var(--light-blue)';
+  zone.style.borderColor = 'var(--primary)';
+  title.textContent = '⏳ AI 분석 중...';
+  try {
+    const b64 = await new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(r.result.split(',')[1]);
+      r.onerror = ()=>rej(new Error('파일 읽기 실패'));
+      r.readAsDataURL(file);
+    });
+    const fileType = file.type === 'application/pdf' ? 'pdf' : 'image';
+    const resp = await fetch(SQ_FLASK_URL+'/api/analyze-pdf-square',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pdf_base64:b64, file_type:fileType})
+    });
+    const d = await resp.json();
+    if(!d.success) throw new Error(d.error||'인식 실패');
+    if(d.L) document.getElementById('sq_L').value = d.L;
+    if(d.W) document.getElementById('sq_W').value = d.W;
+    if(d.H) document.getElementById('sq_H').value = d.H;
+    sqCalc();
+    title.textContent = '✅ ' + file.name + ' — 치수 인식 완료! (반드시 확인하세요)';
+    zone.style.background = 'var(--green-lt)';
+    zone.style.borderColor = 'var(--green)';
+  } catch(e) {
+    title.textContent = '❌ 인식 실패 — 직접 입력해주세요';
+    zone.style.background = 'var(--orange-lt)';
+    zone.style.borderColor = 'var(--orange)';
+    alert('AI 인식 실패: ' + e.message);
+  }
+}
 function sqSelectShape(val) {
   document.getElementById('sq_shape').value = val;
   ['closed','open','agitator'].forEach(s => {
