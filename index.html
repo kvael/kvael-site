@@ -1259,6 +1259,9 @@ const FLASK_URL = 'https://api.kvael.co.kr';
 // ── 페이지 전환 ──
 function showPage(name) {
 if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
+if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
+if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
+if(name==='quote-round') setupDragDrop('upload-zone','file_input',handleFile);
 if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){inAddRow();}
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(name);
@@ -2055,6 +2058,28 @@ function sqResetForm(){
 // 펌프 견적 JS
 // ════════════════════════════════════
 const PM_FLASK_URL = 'https://api.kvael.co.kr';
+
+// ── 공통 드래그앤드롭 설정 ──
+function setupDragDrop(zoneId, fileInputId, handleFn) {
+  const zone = document.getElementById(zoneId);
+  if(!zone) return;
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.style.borderColor = 'var(--primary)';
+    zone.style.background = 'var(--light-blue)';
+  });
+  zone.addEventListener('dragleave', e => {
+    zone.style.borderColor = '';
+    zone.style.background = '';
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = '';
+    zone.style.background = '';
+    const file = e.dataTransfer.files[0];
+    if(file) handleFn(file);
+  });
+}
 let pmRowCount = 0;
 const PUMP_TYPES = ['원심펌프 (버티칼)','원심펌프 (호리젠탈)','모노펌프','다이아프램 (에어)','다이아프램 (약품)','수중펌프'];
 const PUMP_FLUIDS = ['청수','폐수','화학약품','슬러지','해수','오일','기타'];
