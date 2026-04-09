@@ -2380,14 +2380,29 @@ function inAddRow(data) {
   const meterOpts = INST_TYPES[defaultType].map(m=>`<option value="${m}">${m}</option>`).join('');
   tr.innerHTML = `
     <td style="text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:6px 4px;width:30px">${n}</td>
-    <td style="padding:4px"><input type="text" id="in-tag-${n}" placeholder="FT-001" value="${data?.tag||''}" style="width:75px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
+    <td style="padding:4px"><input type="text" id="in-tag-${n}" placeholder="" value="${data?.tag||''}" style="width:75px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
     <td style="padding:4px"><select id="in-type-${n}" onchange="inUpdateMeter(${n})" style="min-width:150px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;font-family:'Pretendard',sans-serif">
       ${Object.keys(INST_TYPES).map(t=>`<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select></td>
     <td style="padding:4px"><select id="in-meter-${n}" style="min-width:160px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;font-family:'Pretendard',sans-serif">
       ${meterOpts}
     </select></td>
-    <td style="padding:4px"><input type="text" id="in-size-${n}" placeholder="${INST_SIZE_HINT[defaultType]||'규격'}" value="${data?.size||''}" style="min-width:90px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
+    <td style="padding:4px">
+      <div style="display:flex;gap:4px;align-items:center">
+        <input type="text" id="in-size-${n}" placeholder="${INST_SIZE_HINT[defaultType]||'규격'}" value="${data?.size||''}" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px">
+        <button onclick="inShowFlowCalc(${n})" id="in-flow-btn-${n}" title="유량으로 구경 계산" style="display:${defaultType==='Flow Meter'?'flex':'none'};background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:5px;padding:4px 6px;font-size:10px;cursor:pointer;white-space:nowrap;align-items:center;gap:2px;font-family:'Pretendard',sans-serif;color:var(--primary)">📐 유량→구경</button>
+      </div>
+      <div id="in-flow-calc-${n}" style="display:none;margin-top:4px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:6px;padding:6px 8px">
+        <div style="display:flex;gap:4px;align-items:center">
+          <input type="number" id="in-flow-val-${n}" placeholder="유량값" step="0.1" style="width:70px;background:#fff;border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px">
+          <select id="in-flow-unit-${n}" style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px;font-family:'Pretendard',sans-serif">
+            <option>m3/hr</option><option>m3/min</option><option>m3/day</option><option>LPM</option>
+          </select>
+          <button onclick="inCalcSize(${n})" style="background:var(--primary);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:'Pretendard',sans-serif">계산</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">유속 1.5m/s 기준 · 물(청수)</div>
+      </div>
+    </td>
     <td style="padding:4px"><input type="number" id="in-qty-${n}" value="${data?.qty||1}" min="1" style="width:50px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
     <td style="padding:4px"><input type="text" id="in-note-${n}" placeholder="특이사항" value="${data?.note||''}" style="min-width:80px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px"></td>
     <td style="padding:4px;text-align:center"><button onclick="inDelRow(${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:14px;padding:4px 6px">✕</button></td>
@@ -2398,6 +2413,30 @@ function inUpdateMeter(n) {
   const type = document.getElementById('in-type-'+n).value;
   document.getElementById('in-meter-'+n).innerHTML = INST_TYPES[type].map(m=>`<option value="${m}">${m}</option>`).join('');
   document.getElementById('in-size-'+n).placeholder = INST_SIZE_HINT[type]||'규격';
+  const btn = document.getElementById('in-flow-btn-'+n);
+  if(btn) btn.style.display = type==='Flow Meter' ? 'flex' : 'none';
+  const calc = document.getElementById('in-flow-calc-'+n);
+  if(calc && type!=='Flow Meter') calc.style.display='none';
+}
+function inShowFlowCalc(n) {
+  const el = document.getElementById('in-flow-calc-'+n);
+  if(el) el.style.display = el.style.display==='none' ? 'block' : 'none';
+}
+async function inCalcSize(n) {
+  const flow = document.getElementById('in-flow-val-'+n).value;
+  const unit = document.getElementById('in-flow-unit-'+n).value;
+  if(!flow){alert('유량값을 입력해주세요.');return;}
+  try {
+    const res = await fetch('https://api.kvael.co.kr/api/calc-pipe-size',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({flow:parseFloat(flow),unit})
+    });
+    const d = await res.json();
+    if(d.success && d.size){
+      document.getElementById('in-size-'+n).value = d.size;
+      document.getElementById('in-flow-calc-'+n).style.display='none';
+    }
+  } catch(e){alert('계산 오류: '+e.message);}
 }
 function inDelRow(n) {
   const tr = document.getElementById('in-row-'+n);
