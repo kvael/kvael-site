@@ -1281,7 +1281,7 @@ function toggleDropdown(id) {
   closeDropdown();
   if (!isOpen) {
     dd.classList.add('open');
-    btn.classList.add('open');
+    if(btn) btn.classList.add('open');
   }
 }
 function closeDropdown() {
