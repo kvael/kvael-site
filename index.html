@@ -374,9 +374,9 @@ select option{background:#fff}
             <div class="dd-icon">📊</div>
             <div><div class="dd-label">Instrument</div><div class="dd-sub">DB 기반 · 자동 견적</div></div>
           </button>
-          <button class="dd-item" onclick="showPage('wip');closeDropdown()">
+          <button class="dd-item" onclick="showPage('quote-fan-blower');closeDropdown()">
             <div class="dd-icon">🌀</div>
-            <div><div class="dd-label">Fan / Blower</div><div class="dd-sub">준비 중</div></div>
+            <div><div class="dd-label">Fan / Blower</div><div class="dd-sub">AI 시중가 기반 · 자동 견적</div></div>
           </button>
         </div>
       </div>
@@ -1279,6 +1279,12 @@ function showPage(name) {
 if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
 if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
 if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
+if(name==='quote-fan-blower'){
+  if(document.getElementById('fan-tbody')&&document.getElementById('fan-tbody').children.length===0) fbAddRow('fan');
+  if(document.getElementById('blower-tbody')&&document.getElementById('blower-tbody').children.length===0) fbAddRow('blower');
+  fbSetupDrag('fan-upload-zone','fan');
+  fbSetupDrag('blower-upload-zone','blower');
+}
 if(name==='quote-square') setupDragDrop('sq-upload-zone','sq_file_input',sqHandleFile);
 if(name==='quote-round') setupDragDrop('upload_zone','file_input',handlePDF);
 if(name==='quote-instrument'&&document.getElementById('in-tbody')&&document.getElementById('in-tbody').children.length===0){inAddRow();}
@@ -2608,6 +2614,327 @@ function inReset(){
   const zone=document.getElementById('in-upload-zone');
   zone.style.background='var(--bg)';zone.style.borderColor='var(--border2)';
   document.getElementById('in-upload-title').textContent='PDF 또는 이미지(JPG/PNG)를 클릭하여 업로드';
+}
+</script>
+
+<!-- ══════════════ Fan / Blower 견적 ══════════════ -->
+<div id="quote-fan-blower" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner">
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">Fan / Blower AI 견적 시스템</div>
+    <div class="qp-sub">K-VAEL · Turbo Fan / Turbo Blower · AI 시중가 기반 참고용 견적 자동 발송</div>
+  </div>
+  <div class="notice-bar">
+    ⚠ 본 견적은 <strong>참고용(Budgetary)</strong>이며 AI가 시중가 기준으로 산출합니다.
+    정확한 견적은 K-VAEL 담당자에게 문의해 주세요.
+  </div>
+
+  <!-- 고객 정보 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a5fad"></div>고객 정보</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>회사명</label><input type="text" id="fb_company" placeholder="(주)고객사명"></div>
+        <div class="field"><label>담당자명</label><input type="text" id="fb_contact" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (견적서 수신)</label><input type="email" id="fb_email" placeholder="email@company.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fan / Blower 나란히 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+
+    <!-- Fan 패널 -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+      <div style="padding:10px 16px;background:linear-gradient(135deg,#1a5fad15,#1a5fad05);border-bottom:2px solid var(--primary);display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">🌬️</span>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--primary)">Turbo Fan</div>
+          <div style="font-size:10px;color:var(--text2)">단위: CMM × mmAq | 재질: STS304 / FRP / SS275</div>
+        </div>
+      </div>
+      <div style="padding:14px">
+        <div id="fan-upload-zone" onclick="document.getElementById('fan_file').click()"
+          style="border:2px dashed var(--border2);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:8px">
+          <div style="font-size:20px;margin-bottom:3px">📄</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2)" id="fan-upload-title">도면/데이터시트 업로드 (드래그 가능)</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">PDF · JPG · PNG — AI가 풍량·정압 자동 인식</div>
+        </div>
+        <input type="file" id="fan_file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="fbHandleFile('fan',this.files[0])">
+        <div style="font-size:10px;color:var(--orange);margin-bottom:10px">⚠ AI 인식 후 반드시 값을 확인하세요</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px;width:25px">No.</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">풍량(CMM)</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">정압(mmAq)</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">예상kW</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">재질</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">수량</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px"></th>
+            </tr>
+          </thead>
+          <tbody id="fan-tbody"></tbody>
+        </table>
+        <button onclick="fbAddRow('fan')" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:8px;padding:7px;background:var(--light-blue);border:1px dashed var(--blue-bd);border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:var(--primary);width:100%;font-family:'Pretendard',sans-serif">＋ Fan 항목 추가</button>
+      </div>
+    </div>
+
+    <!-- Blower 패널 -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+      <div style="padding:10px 16px;background:linear-gradient(135deg,#0e7a6e15,#0e7a6e05);border-bottom:2px solid #0e7a6e;display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">💨</span>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#0e7a6e">Turbo Blower</div>
+          <div style="font-size:10px;color:var(--text2)">단위: Nm³/min × mmAq | 재질: Maker Standard</div>
+        </div>
+      </div>
+      <div style="padding:14px">
+        <div id="blower-upload-zone" onclick="document.getElementById('blower_file').click()"
+          style="border:2px dashed var(--border2);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);margin-bottom:8px">
+          <div style="font-size:20px;margin-bottom:3px">📄</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2)" id="blower-upload-title">도면/데이터시트 업로드 (드래그 가능)</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">PDF · JPG · PNG — AI가 풍량·압력 자동 인식</div>
+        </div>
+        <input type="file" id="blower_file" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="fbHandleFile('blower',this.files[0])">
+        <div style="font-size:10px;color:var(--orange);margin-bottom:10px">⚠ AI 인식 후 반드시 값을 확인하세요</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px;width:25px">No.</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">풍량(Nm³/min)</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">압력(mmAq)</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">예상kW</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px">수량</th>
+              <th style="background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px"></th>
+            </tr>
+          </thead>
+          <tbody id="blower-tbody"></tbody>
+        </table>
+        <button onclick="fbAddRow('blower')" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-top:8px;padding:7px;background:#eafaf8;border:1px dashed #7dd4cc;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;color:#0e7a6e;width:100%;font-family:'Pretendard',sans-serif">＋ Blower 항목 추가</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 결과 -->
+  <div id="fb-result-box" style="background:var(--green-lt);border:1px solid var(--green-bd);border-radius:10px;padding:16px;margin-bottom:12px;display:none">
+    <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">🤖 AI 견적 결과</div>
+    <div id="fb-result-list"></div>
+    <div style="background:var(--primary);border-radius:8px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.85)">총 참고 견적금액 (VAT 별도)</div>
+      <div style="font-size:20px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace" id="fb-total-price">—</div>
+    </div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="fbtn-wrap">
+    <button class="fbtn fbtn-reset" onclick="fbReset()">↺ 초기화</button>
+    <button class="fbtn fbtn-submit" id="fb-submit-btn" onclick="fbSubmit()" style="background:linear-gradient(135deg,var(--primary),#0e7a6e)">
+      🤖 AI Fan/Blower 견적 요청 및 이메일 발송
+    </button>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</div>
+</div><!-- /quote-fan-blower page -->
+
+<script>
+const FB_FLASK_URL = 'https://api.kvael.co.kr';
+let fanRowCount = 0;
+let blowerRowCount = 0;
+
+function fbCalcKw(flow, pressure, type) {
+  if(!flow || !pressure) return '—';
+  const eta = type === 'fan' ? 0.65 : 0.72;
+  const kw = (flow * pressure) / (6120 * eta);
+  return kw.toFixed(1);
+}
+
+function fbAddRow(type, data) {
+  const isF = type === 'fan';
+  if(isF) fanRowCount++; else blowerRowCount++;
+  const n = isF ? fanRowCount : blowerRowCount;
+  const tbody = document.getElementById(type+'-tbody');
+  const tr = document.createElement('tr');
+  tr.id = type+'-row-'+n;
+  const flow = data?.flow || '';
+  const press = data?.pressure || '';
+  const kw = (flow && press) ? fbCalcKw(parseFloat(flow), parseFloat(press), type) : '—';
+
+  if(isF) {
+    tr.innerHTML = `
+      <td style="text-align:center;font-size:11px;color:var(--text3);padding:5px 3px">${n}</td>
+      <td style="padding:3px"><input type="number" id="fan-flow-${n}" value="${flow}" placeholder="예:50" step="0.1" oninput="fbUpdateKw('fan',${n})" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
+      <td style="padding:3px"><input type="number" id="fan-press-${n}" value="${press}" placeholder="예:200" step="1" oninput="fbUpdateKw('fan',${n})" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
+      <td style="padding:3px;text-align:center;font-size:11px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace" id="fan-kw-${n}">${kw}</td>
+      <td style="padding:3px"><select id="fan-mat-${n}" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px;font-family:'Pretendard',sans-serif">
+        <option>STS304</option><option>FRP</option><option>SS275</option>
+      </select></td>
+      <td style="padding:3px"><input type="number" id="fan-qty-${n}" value="${data?.qty||1}" min="1" style="width:45px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
+      <td style="padding:3px;text-align:center"><button onclick="fbDelRow('fan',${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:13px">✕</button></td>
+    `;
+  } else {
+    tr.innerHTML = `
+      <td style="text-align:center;font-size:11px;color:var(--text3);padding:5px 3px">${n}</td>
+      <td style="padding:3px"><input type="number" id="blower-flow-${n}" value="${flow}" placeholder="예:10" step="0.1" oninput="fbUpdateKw('blower',${n})" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
+      <td style="padding:3px"><input type="number" id="blower-press-${n}" value="${press}" placeholder="예:5000" step="1" oninput="fbUpdateKw('blower',${n})" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
+      <td style="padding:3px;text-align:center;font-size:11px;font-weight:700;color:#0e7a6e;font-family:'JetBrains Mono',monospace" id="blower-kw-${n}">${kw}</td>
+      <td style="padding:3px"><input type="number" id="blower-qty-${n}" value="${data?.qty||1}" min="1" style="width:45px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
+      <td style="padding:3px;text-align:center"><button onclick="fbDelRow('blower',${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:13px">✕</button></td>
+    `;
+  }
+  tbody.appendChild(tr);
+}
+
+function fbUpdateKw(type, n) {
+  const flow  = parseFloat(document.getElementById(type+'-flow-'+n)?.value) || 0;
+  const press = parseFloat(document.getElementById(type+'-press-'+n)?.value) || 0;
+  const kwEl  = document.getElementById(type+'-kw-'+n);
+  if(kwEl) kwEl.textContent = (flow && press) ? fbCalcKw(flow, press, type) : '—';
+}
+
+function fbDelRow(type, n) {
+  const tr = document.getElementById(type+'-row-'+n);
+  if(tr) tr.remove();
+}
+
+function fbGetRows(type) {
+  const rows = [];
+  const tbody = document.getElementById(type+'-tbody');
+  if(!tbody) return rows;
+  Array.from(tbody.children).forEach(tr => {
+    const n = tr.id.replace(type+'-row-','');
+    const flow  = parseFloat(document.getElementById(type+'-flow-'+n)?.value) || 0;
+    const press = parseFloat(document.getElementById(type+'-press-'+n)?.value) || 0;
+    if(!flow && !press) return;
+    const kw = parseFloat(fbCalcKw(flow, press, type)) || 0;
+    if(type === 'fan') {
+      rows.push({type:'Turbo Fan', flow, pressure:press, kw,
+        material: document.getElementById('fan-mat-'+n)?.value || 'STS304',
+        qty: parseInt(document.getElementById('fan-qty-'+n)?.value)||1,
+        flow_unit:'CMM', pressure_unit:'mmAq'});
+    } else {
+      rows.push({type:'Turbo Blower', flow, pressure:press, kw,
+        material:'Maker Standard',
+        qty: parseInt(document.getElementById('blower-qty-'+n)?.value)||1,
+        flow_unit:'Nm³/min', pressure_unit:'mmAq'});
+    }
+  });
+  return rows;
+}
+
+function fbSetupDrag(zoneId, type) {
+  const zone = document.getElementById(zoneId);
+  if(!zone) return;
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.style.borderColor = type==='fan' ? 'var(--primary)' : '#0e7a6e';
+    zone.style.background  = type==='fan' ? 'var(--light-blue)' : '#eafaf8';
+  });
+  zone.addEventListener('dragleave', () => {
+    zone.style.borderColor = ''; zone.style.background = '';
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = ''; zone.style.background = '';
+    const file = e.dataTransfer.files[0];
+    if(file) fbHandleFile(type, file);
+  });
+}
+
+async function fbHandleFile(type, file) {
+  if(!file) return;
+  const zone  = document.getElementById(type+'-upload-zone');
+  const title = document.getElementById(type+'-upload-title');
+  zone.style.borderColor = type==='fan' ? 'var(--primary)' : '#0e7a6e';
+  zone.style.background  = type==='fan' ? 'var(--light-blue)' : '#eafaf8';
+  title.textContent = '⏳ AI 분석 중...';
+  try {
+    const b64 = await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);
+      r.onerror=()=>rej(new Error('파일 읽기 실패'));
+      r.readAsDataURL(file);
+    });
+    const resp = await fetch(FB_FLASK_URL+'/api/analyze-fan-blower',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({pdf_base64:b64, file_type:file.type==='application/pdf'?'pdf':'image', equipment_type:type})
+    });
+    const d = await resp.json();
+    if(!d.found) throw new Error(d.error||'인식 실패');
+    const items = d.items||[];
+    if(items.length > 0) {
+      document.getElementById(type+'-tbody').innerHTML='';
+      if(type==='fan') fanRowCount=0; else blowerRowCount=0;
+      items.forEach(item=>fbAddRow(type,item));
+      title.textContent = '✅ '+file.name+' — '+items.length+'개 인식 완료 (반드시 확인!)';
+      zone.style.background='var(--green-lt)'; zone.style.borderColor='var(--green)';
+    } else throw new Error('데이터 없음');
+  } catch(e) {
+    title.textContent='❌ 인식 실패 — 직접 입력해주세요';
+    zone.style.background='var(--orange-lt)'; zone.style.borderColor='var(--orange)';
+    alert('AI 인식 실패: '+e.message);
+  }
+}
+
+async function fbSubmit() {
+  const company = document.getElementById('fb_company').value.trim();
+  const contact = document.getElementById('fb_contact').value.trim();
+  const email   = document.getElementById('fb_email').value.trim();
+  if(!company||!contact||!email){alert('고객 정보를 모두 입력해주세요.');return;}
+  const allRows = [...fbGetRows('fan'),...fbGetRows('blower')];
+  if(allRows.length===0){alert('Fan 또는 Blower 사양을 입력해주세요.');return;}
+  const btn=document.getElementById('fb-submit-btn');
+  btn.textContent='⏳ AI 분석 중... ('+allRows.length+'개 항목)'; btn.disabled=true;
+  try {
+    const res=await fetch(FB_FLASK_URL+'/api/quote-fan-blower',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({company,contact,email,items:allRows})
+    });
+    const d=await res.json();
+    if(!d.success) throw new Error(d.message||'오류');
+    const list=document.getElementById('fb-result-list'); list.innerHTML='';
+    let total=0;
+    d.results.forEach((r,idx)=>{
+      const row=allRows[idx]; total+=(r.total_price||0);
+      const div=document.createElement('div');
+      div.style.cssText='background:#fff;border:1px solid var(--green-bd);border-radius:8px;padding:12px 14px;margin-bottom:8px';
+      div.innerHTML=`
+        <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--green-bd);padding-bottom:6px">
+          No.${idx+1} — ${row.type} | ${row.flow} ${row.flow_unit} × ${row.pressure} ${row.pressure_unit} | ${row.material} | ${row.kw}kW
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">추천 모델</div><div style="font-size:11px;font-weight:700;color:var(--navy)">${r.model||'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">모터출력</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.motor_kw?r.motor_kw+'kW':'—'}</div></div>
+          <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">수량</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${row.qty} SET</div></div>
+          <div style="background:var(--light-blue);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">소계</div><div style="font-size:12px;font-weight:700;color:var(--primary)">${r.total_price?Math.round(r.total_price).toLocaleString('ko-KR')+'원':'별도협의'}</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);background:var(--bg);border-radius:6px;padding:7px 10px">${r.note||''}</div>
+      `;
+      list.appendChild(div);
+    });
+    document.getElementById('fb-total-price').textContent=total>0?total.toLocaleString('ko-KR')+'원':'별도 협의';
+    document.getElementById('fb-result-box').style.display='block';
+    alert('Fan/Blower 견적서가 '+email+'으로 발송되었습니다!');
+  } catch(e){alert('오류: '+e.message);}
+  finally{btn.textContent='🤖 AI Fan/Blower 견적 요청 및 이메일 발송';btn.disabled=false;}
+}
+
+function fbReset() {
+  ['fb_company','fb_contact','fb_email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fan-tbody').innerHTML=''; fanRowCount=0;
+  document.getElementById('blower-tbody').innerHTML=''; blowerRowCount=0;
+  fbAddRow('fan'); fbAddRow('blower');
+  document.getElementById('fb-result-box').style.display='none';
+  ['fan','blower'].forEach(t=>{
+    const z=document.getElementById(t+'-upload-zone');
+    const ti=document.getElementById(t+'-upload-title');
+    if(z){z.style.background='';z.style.borderColor='';}
+    if(ti) ti.textContent='도면/데이터시트 업로드 (드래그 가능)';
+  });
 }
 </script>
 
