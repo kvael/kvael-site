@@ -2542,7 +2542,7 @@ function inGetRows() {
       qty:       parseInt(document.getElementById('in-qty-'+n)?.value)||1,
       note:      document.getElementById('in-note-'+n)?.value||'',
     };
-  }).filter(r=>r.inst_type && r.size.trim()!=='');
+  }).filter(r=>r.inst_type);
 }
 async function inHandleFile(file) {
   if(!file) return;
