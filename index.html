@@ -2538,7 +2538,7 @@ function inGetRows() {
       tag:       document.getElementById('in-tag-'+n)?.value||'',
       inst_type: document.getElementById('in-type-'+n)?.value||'',
       meter_type:document.getElementById('in-meter-'+n)?.value||'',
-      size:      document.getElementById('in-size-'+n)?.value||'',
+      size:      (()=>{const s=document.getElementById('in-size-'+n)?.value||'';return /^[0-9]+$/.test(s.trim())?s.trim()+'A':s.trim();})(),
       qty:       parseInt(document.getElementById('in-qty-'+n)?.value)||1,
       note:      document.getElementById('in-note-'+n)?.value||'',
     };
