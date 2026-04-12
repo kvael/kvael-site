@@ -1666,9 +1666,9 @@ async function submitQuote(mode='engineering'){
   }
   // 수동입력 기준일 때 확인
   if(mode==='manual'){
-    const mBot = document.getElementById('t_bottom_manual')?.value;
-    const mShell = document.getElementById('t_shell1_manual')?.value;
-    if(!mBot && !mShell){
+    const manualInputs = document.querySelectorAll('[id^="m_"]');
+    const hasManual = Array.from(manualInputs).some(el=>el.value && parseFloat(el.value)>0);
+    if(!hasManual){
       alert('수동입력 기준을 선택하셨습니다.\n두께 산출 항목에서 수동 입력값을 먼저 입력해주세요.');return;
     }
   }
@@ -1703,13 +1703,12 @@ async function submitQuote(mode='engineering'){
     // 수동입력 기준이면 수동 두께값 추가
     if(mode==='manual'){
       const manualShells = {};
-      document.querySelectorAll('[id^="t_shell"][id$="_manual"]').forEach(el=>{
-        if(el.value) manualShells[el.id.replace('_manual','').replace('t_shell','SHELL-').replace('t_bottom','BOTTOM').replace('t_roof','ROOF')] = parseFloat(el.value);
+      document.querySelectorAll('[id^="m_"]').forEach(el=>{
+        if(el.value && parseFloat(el.value)>0){
+          const key = el.id.replace('m_','');
+          manualShells[key] = parseFloat(el.value);
+        }
       });
-      const tBot = document.getElementById('t_bottom_manual')?.value;
-      const tRoof = document.getElementById('t_roof_manual')?.value;
-      if(tBot) manualShells['BOTTOM'] = parseFloat(tBot);
-      if(tRoof) manualShells['ROOF'] = parseFloat(tRoof);
       payload.manual_shell_review = manualShells;
     }
 
