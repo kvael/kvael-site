@@ -1261,7 +1261,8 @@ select option{background:#fff}
   <div class="fbtn-wrap">
     <button class="fbtn fbtn-reset" onclick="sqResetForm()">↺ 초기화</button>
     <button class="fbtn fbtn-print" onclick="window.print()">🖨 인쇄/PDF</button>
-    <button class="fbtn fbtn-submit" id="sq-btn-eng" onclick="sqSubmitQuote('engineering')">📧 공학식 기준 견적서 발송</button>
+    <button class="fbtn fbtn-submit" id="sq-btn-eng" onclick="sqSubmitQuote('engineering')" style="background:linear-gradient(135deg,#1a5fad,#0e5a9e)">📐 공학식 기준 견적서 발송</button>
+    <button class="fbtn fbtn-submit" id="sq-btn-manual" onclick="sqSubmitQuote('manual')" style="background:linear-gradient(135deg,#b85c00,#d4730a)">✏️ 수동입력 기준 견적서 발송</button>
     <button class="fbtn fbtn-submit" id="sq-btn-ai" onclick="sqSubmitQuote('ai')" style="background:linear-gradient(135deg,#1a7a40,#1a5fad);display:none">🤖 AI 검토 기준 견적서 발송</button>
   </div>
   <div style="height:36px"></div>
@@ -1976,7 +1977,12 @@ async function sqSubmitQuote(mode='engineering'){
   const res=window._sqCalcResult;
   if(!res){alert('먼저 탱크 사이즈를 입력해주세요.');return;}
   if(mode==='ai'&&!window._sqAIReviewData){alert('먼저 AI 검토를 완료해주세요.');return;}
-  const btnId=mode==='ai'?'sq-btn-ai':'sq-btn-eng';
+  if(mode==='manual'){
+    const manualInputs=document.querySelectorAll('[id^="sq_m_"]');
+    const hasManual=Array.from(manualInputs).some(el=>el.value&&parseFloat(el.value)>0);
+    if(!hasManual){alert('수동입력 기준을 선택하셨습니다.\n두께 산출 항목에서 수동 입력값을 먼저 입력해주세요.');return;}
+  }
+  const btnId=mode==='ai'?'sq-btn-ai':mode==='manual'?'sq-btn-manual':'sq-btn-eng';
   const btn=document.getElementById(btnId);
   const orig=btn.textContent;
   btn.textContent='⏳ 처리 중...';btn.disabled=true;
@@ -1988,9 +1994,17 @@ async function sqSubmitQuote(mode='engineering'){
       payload.ai_t_shell=window._sqAIReviewData.t_shell;
       payload.ai_t_roof=window._sqAIReviewData.t_roof;
     }
+    if(mode==='manual'){
+      const mBot=document.getElementById('sq_m_BOTTOM')?.value;
+      const mShell=document.getElementById('sq_m_SHELL')?.value;
+      const mRoof=document.getElementById('sq_m_ROOF')?.value;
+      if(mBot) payload.ai_t_bot=parseFloat(mBot);
+      if(mShell) payload.ai_t_shell=parseFloat(mShell);
+      if(mRoof) payload.ai_t_roof=parseFloat(mRoof);
+    }
     const apiRes=await fetch(SQ_FLASK_URL+'/api/quote-square',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const d=await apiRes.json();
-    if(d.success){const label=mode==='ai'?'AI 검토 기준':'공학식 기준';alert('['+label+'] 견적서가 '+email+'으로 발송되었습니다!\n\n총 견적금액: '+d.grand.toLocaleString('ko-KR')+'원 (VAT 별도)');}
+    if(d.success){const label=mode==='ai'?'AI 검토 기준':mode==='manual'?'수동입력 기준':'공학식 기준';alert('['+label+'] 견적서가 '+email+'으로 발송되었습니다!\n\n총 견적금액: '+d.grand.toLocaleString('ko-KR')+'원 (VAT 별도)');}
 
     else alert('오류: '+d.message);
   }catch(e){alert('서버 연결 실패: '+e.message);}
