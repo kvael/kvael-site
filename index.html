@@ -394,6 +394,12 @@ select option{background:#fff}
       </div>
       <div class="nav-item"><button class="nav-link" onclick="showPage('support')">고객 지원</button></div>
     </nav>
+    <div id="nav-auth-area" style="display:flex;align-items:center;gap:8px;margin-right:8px">
+      <button id="nav-login-btn" onclick="showPage('login')" style="background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Pretendard',sans-serif">로그인</button>
+      <button id="nav-signup-btn" onclick="showPage('signup')" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Pretendard',sans-serif">회원가입</button>
+      <div id="nav-user-info" style="display:none;color:#fff;font-size:12px;font-weight:600"></div>
+      <button id="nav-logout-btn" onclick="doLogout()" style="display:none;background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Pretendard',sans-serif">로그아웃</button>
+    </div>
     <button class="btn-cta" onclick="showPage('quote-round')">무료 견적 요청</button>
     <button class="hamburger" onclick="toggleMenu()" id="hamburger">
       <span></span><span></span><span></span>
@@ -2970,6 +2976,128 @@ function fbReset() {
     if(z){z.style.background='';z.style.borderColor='';}
     if(ti) ti.textContent='도면/데이터시트 업로드 (드래그 가능)';
   });
+}
+</script>
+
+<!-- ══════════════ 회원가입 ══════════════ -->
+<div id="signup" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner" style="max-width:480px">
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">회원가입</div>
+    <div class="qp-sub">K-VAEL AI 견적 시스템 · 가입 후 담당자 승인 시 이용 가능</div>
+  </div>
+  <div class="fcard">
+    <div class="fcard-body">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="field"><label>회사명 *</label><input type="text" id="su_company" placeholder="(주)회사명"></div>
+        <div class="field"><label>담당자명 *</label><input type="text" id="su_name" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (아이디) *</label><input type="email" id="su_email" placeholder="email@company.com"></div>
+        <div class="field"><label>비밀번호 * (6자리 이상)</label><input type="password" id="su_password" placeholder="비밀번호 입력"></div>
+        <div class="field"><label>비밀번호 확인 *</label><input type="password" id="su_password2" placeholder="비밀번호 재입력"></div>
+        <div class="field"><label>연락처</label><input type="text" id="su_phone" placeholder="010-1234-5678"></div>
+        <div style="background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:12px;font-size:12px;color:var(--text2);line-height:1.7">
+          📋 가입 신청 후 K-VAEL 담당자 승인 시 견적서 발송 기능을 이용하실 수 있습니다.<br>
+          승인은 보통 1 영업일 이내에 처리됩니다.
+        </div>
+        <button onclick="doSignup()" style="background:linear-gradient(135deg,var(--primary),#0e5a9e);color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif">
+          회원가입 신청
+        </button>
+        <div style="text-align:center;font-size:13px;color:var(--text2)">
+          이미 계정이 있으신가요? <button onclick="showPage('login')" style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600;font-size:13px;font-family:'Pretendard',sans-serif">로그인</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div><!-- /signup -->
+
+<!-- ══════════════ 로그인 ══════════════ -->
+<div id="login" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner" style="max-width:480px">
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">로그인</div>
+    <div class="qp-sub">K-VAEL AI 견적 시스템</div>
+  </div>
+  <div class="fcard">
+    <div class="fcard-body">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="field"><label>이메일 (아이디)</label><input type="email" id="li_email" placeholder="email@company.com"></div>
+        <div class="field"><label>비밀번호</label><input type="password" id="li_password" placeholder="비밀번호 입력"></div>
+        <button onclick="doLogin()" style="background:linear-gradient(135deg,var(--primary),#0e5a9e);color:#fff;border:none;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif">
+          로그인
+        </button>
+        <div style="text-align:center;font-size:13px;color:var(--text2)">
+          계정이 없으신가요? <button onclick="showPage('signup')" style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600;font-size:13px;font-family:'Pretendard',sans-serif">회원가입</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div><!-- /login -->
+
+<script>
+const AUTH_URL = 'https://api.kvael.co.kr';
+window._loginUser = null;
+
+function updateNavAuth() {
+  const user = window._loginUser;
+  document.getElementById('nav-login-btn').style.display = user ? 'none' : '';
+  document.getElementById('nav-signup-btn').style.display = user ? 'none' : '';
+  document.getElementById('nav-user-info').style.display = user ? '' : 'none';
+  document.getElementById('nav-logout-btn').style.display = user ? '' : 'none';
+  if(user) document.getElementById('nav-user-info').textContent = user.company + ' ' + user.name;
+}
+
+async function doSignup() {
+  const company  = document.getElementById('su_company').value.trim();
+  const name     = document.getElementById('su_name').value.trim();
+  const email    = document.getElementById('su_email').value.trim();
+  const password = document.getElementById('su_password').value.trim();
+  const password2= document.getElementById('su_password2').value.trim();
+  const phone    = document.getElementById('su_phone').value.trim();
+  if(!company||!name||!email||!password){alert('필수 항목을 모두 입력해주세요.');return;}
+  if(password !== password2){alert('비밀번호가 일치하지 않습니다.');return;}
+  if(password.length < 6){alert('비밀번호는 6자리 이상이어야 합니다.');return;}
+  try {
+    const res = await fetch(AUTH_URL+'/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company,name,email,password,phone})});
+    const d = await res.json();
+    if(d.success){
+      alert('✅ ' + d.message);
+      showPage('home');
+    } else {
+      alert('❌ ' + d.message);
+    }
+  } catch(e){alert('서버 연결 실패: '+e.message);}
+}
+
+async function doLogin() {
+  const email    = document.getElementById('li_email').value.trim();
+  const password = document.getElementById('li_password').value.trim();
+  if(!email||!password){alert('이메일과 비밀번호를 입력해주세요.');return;}
+  try {
+    const res = await fetch(AUTH_URL+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const d = await res.json();
+    if(d.success){
+      window._loginUser = d;
+      updateNavAuth();
+      alert('✅ 환영합니다, ' + d.company + ' ' + d.name + '님!');
+      showPage('home');
+    } else {
+      alert('❌ ' + d.message);
+    }
+  } catch(e){alert('서버 연결 실패: '+e.message);}
+}
+
+function doLogout() {
+  window._loginUser = null;
+  updateNavAuth();
+  alert('로그아웃 되었습니다.');
 }
 </script>
 
