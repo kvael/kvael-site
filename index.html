@@ -3319,223 +3319,184 @@ function logoClick() {
 </div><!-- /quote-piping -->
 
 <script>
-const PP_URL = 'https://api.kvael.co.kr';
-let ppRowCount = 0;
-let ppCurrentMode = 'manual';
-
-const PP_ITEMS = ['파이프','엘보','티','플랜지','레듀셔','캡','버터플라이밸브','게이트밸브','글로브밸브','볼밸브','플렉시블','체크밸브(판형)','체크밸브(스윙)'];
-const PP_MATS  = ['STS304','STS316L','SS275','SGP'];
-const PP_SIZES = ['15A','20A','25A','32A','40A','50A','65A','80A','100A','125A','150A','200A','250A','300A','350A','400A'];
-const PP_DI    = {'15A':0.5,'20A':0.75,'25A':1.0,'32A':1.25,'40A':1.5,'50A':2.0,'65A':2.5,'80A':3.0,'100A':4.0,'125A':5.0,'150A':6.0,'200A':8.0,'250A':10.0,'300A':12.0,'350A':14.0,'400A':16.0};
-const PP_WT    = {'파이프':1.0,'엘보':2.0,'티':3.0,'플랜지':1.5,'레듀셔':2.0,'캡':1.0,'버터플라이밸브':0.5,'게이트밸브':0.5,'글로브밸브':0.5,'볼밸브':0.5,'플렉시블':0.5,'체크밸브(판형)':0.5,'체크밸브(스윙)':0.5};
-const PP_UNIT  = {'파이프':'m'};
+var PP_URL = 'https://api.kvael.co.kr';
+var ppRowCount = 0;
+var ppCurrentMode = 'manual';
+var PP_ITEMS = ['파이프','엘보','티','플랜지','레듀셔','캡','버터플라이밸브','게이트밸브','글로브밸브','볼밸브','플렉시블','체크밸브판형','체크밸브스윙'];
+var PP_MATS  = ['STS304','STS316L','SS275','SGP'];
+var PP_SIZES = ['15A','20A','25A','32A','40A','50A','65A','80A','100A','125A','150A','200A','250A','300A','350A','400A'];
+var PP_DI = {'15A':0.5,'20A':0.75,'25A':1.0,'32A':1.25,'40A':1.5,'50A':2.0,'65A':2.5,'80A':3.0,'100A':4.0,'125A':5.0,'150A':6.0,'200A':8.0,'250A':10.0,'300A':12.0,'350A':14.0,'400A':16.0};
+var PP_WT = {'파이프':1.0,'엘보':2.0,'티':3.0,'플랜지':1.5,'레듀셔':2.0,'캡':1.0,'버터플라이밸브':0.5,'게이트밸브':0.5,'글로브밸브':0.5,'볼밸브':0.5,'플렉시블':0.5,'체크밸브판형':0.5,'체크밸브스윙':0.5};
+var PP_UNIT = {'파이프':'m'};
 
 function ppSetMode(mode) {
   ppCurrentMode = mode;
-  ['manual','text','excel'].forEach(m => {
-    const el = document.getElementById('pp-mode-'+m);
-    if(el) {
-      el.style.border = m===mode ? '2px solid var(--primary)' : '1px solid var(--border)';
-      el.querySelector('div:nth-child(2)').style.color = m===mode ? 'var(--primary)' : 'var(--text2)';
+  var modes = ['manual','text','excel'];
+  for(var i=0;i<modes.length;i++){
+    var el = document.getElementById('pp-mode-'+modes[i]);
+    if(el){
+      el.style.border = modes[i]===mode ? '2px solid var(--primary)' : '1px solid var(--border)';
+      el.children[1].style.color = modes[i]===mode ? 'var(--primary)' : 'var(--text2)';
     }
-  });
-  document.getElementById('pp-text-panel').style.display  = mode==='text'  ? '' : 'none';
-  document.getElementById('pp-excel-panel').style.display = mode==='excel' ? '' : 'none';
+  }
+  var tp = document.getElementById('pp-text-panel');
+  var ep = document.getElementById('pp-excel-panel');
+  if(tp) tp.style.display = mode==='text' ? '' : 'none';
+  if(ep) ep.style.display = mode==='excel' ? '' : 'none';
 }
 
 function ppAddRow(data) {
   ppRowCount++;
-  const n = ppRowCount;
-  const tbody = document.getElementById('pp-tbody');
-  const tr = document.createElement('tr');
+  var n = ppRowCount;
+  var tbody = document.getElementById('pp-tbody');
+  var tr = document.createElement('tr');
   tr.id = 'pp-row-' + n;
-
-  const defaultItem = data?.item || '파이프';
-  const defaultUnit = PP_UNIT[defaultItem] || 'EA';
-  const itemOpts  = PP_ITEMS.map(i => `<option value="${i}"${i===defaultItem?' selected':''}>${i}</option>`).join('');
-  const matOpts   = PP_MATS.map(m  => `<option value="${m}"${m===(data?.mat||'STS304')?' selected':''}>${m}</option>`).join('');
-  const sizeOpts  = PP_SIZES.map(s => `<option value="${s}"${s===(data?.size||'100A')?' selected':''}>${s}</option>`).join('');
-
-  tr.innerHTML = `
-    <td style="text-align:center;font-size:11px;color:var(--text3);padding:5px 3px">${n}</td>
-    <td style="padding:3px"><select id="pp-item-${n}" onchange="ppUpdateRow(${n})" style="min-width:105px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;font-family:'Pretendard',sans-serif">${itemOpts}</select></td>
-    <td style="padding:3px"><select id="pp-mat-${n}" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;font-family:'Pretendard',sans-serif">${matOpts}</select></td>
-    <td style="padding:3px"><select id="pp-size-${n}" onchange="ppCalcAll()" style="min-width:65px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;font-family:'Pretendard',sans-serif">${sizeOpts}</select></td>
-    <td style="padding:3px"><input type="number" id="pp-qty-${n}" value="${data?.qty||1}" min="0" step="0.1" oninput="ppCalcAll()" style="width:60px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:center"></td>
-    <td style="text-align:center;font-size:11px;color:var(--text2);font-weight:600;padding:5px 4px" id="pp-unit-${n}">${defaultUnit}</td>
-    <td style="padding:3px"><input type="number" id="pp-uprice-${n}" value="${data?.uprice||0}" min="0" step="1000" oninput="ppCalcAll()" placeholder="DB조회" style="width:85px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:right"></td>
-    <td style="font-size:11px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace;text-align:right;padding:5px 6px" id="pp-mat-cost-${n}">—</td>
-    <td style="font-size:11px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;text-align:center;background:var(--light-blue);padding:5px 6px" id="pp-di-${n}">—</td>
-    <td style="font-size:11px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace;text-align:right;background:var(--light-blue);padding:5px 6px" id="pp-labor-${n}">—</td>
-    <td style="text-align:center;padding:3px"><button onclick="ppDelRow(${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:13px">✕</button></td>
-  `;
+  var defaultItem = (data && data.item) ? data.item : '파이프';
+  var defaultMat  = (data && data.mat)  ? data.mat  : 'STS304';
+  var defaultSize = (data && data.size) ? data.size : '100A';
+  var defaultQty  = (data && data.qty)  ? data.qty  : 1;
+  var defaultUnit = PP_UNIT[defaultItem] || 'EA';
+  var itemOpts='',matOpts='',sizeOpts='';
+  for(var i=0;i<PP_ITEMS.length;i++) itemOpts+='<option value="'+PP_ITEMS[i]+'"'+(PP_ITEMS[i]===defaultItem?' selected':'')+'>'+PP_ITEMS[i]+'</option>';
+  for(var i=0;i<PP_MATS.length;i++) matOpts+='<option value="'+PP_MATS[i]+'"'+(PP_MATS[i]===defaultMat?' selected':'')+'>'+PP_MATS[i]+'</option>';
+  for(var i=0;i<PP_SIZES.length;i++) sizeOpts+='<option value="'+PP_SIZES[i]+'"'+(PP_SIZES[i]===defaultSize?' selected':'')+'>'+PP_SIZES[i]+'</option>';
+  tr.innerHTML = '<td style="text-align:center;font-size:11px;color:var(--text3);padding:5px 3px">'+n+'</td>'
+    +'<td style="padding:3px"><select id="pp-item-'+n+'" onchange="ppUpdateRow('+n+')" style="min-width:105px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px">'+itemOpts+'</select></td>'
+    +'<td style="padding:3px"><select id="pp-mat-'+n+'" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px">'+matOpts+'</select></td>'
+    +'<td style="padding:3px"><select id="pp-size-'+n+'" onchange="ppCalcAll()" style="min-width:65px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px">'+sizeOpts+'</select></td>'
+    +'<td style="padding:3px"><input type="number" id="pp-qty-'+n+'" value="'+defaultQty+'" min="0" step="0.1" oninput="ppCalcAll()" style="width:60px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:center"></td>'
+    +'<td style="text-align:center;font-size:11px;color:var(--text2);font-weight:600;padding:5px 4px" id="pp-unit-'+n+'">'+defaultUnit+'</td>'
+    +'<td style="padding:3px"><input type="number" id="pp-uprice-'+n+'" value="0" min="0" step="1000" oninput="ppCalcAll()" placeholder="DB조회" style="width:85px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:right"></td>'
+    +'<td style="font-size:11px;font-weight:700;color:var(--navy);font-family:monospace;text-align:right;padding:5px 6px" id="pp-mat-cost-'+n+'">-</td>'
+    +'<td style="font-size:11px;font-weight:700;color:var(--primary);font-family:monospace;text-align:center;background:var(--light-blue);padding:5px 6px" id="pp-di-'+n+'">-</td>'
+    +'<td style="font-size:11px;font-weight:700;color:var(--navy);font-family:monospace;text-align:right;background:var(--light-blue);padding:5px 6px" id="pp-labor-'+n+'">-</td>'
+    +'<td style="text-align:center;padding:3px"><button onclick="ppDelRow('+n+')" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:13px">X</button></td>';
   tbody.appendChild(tr);
   ppCalcAll();
 }
 
 function ppUpdateRow(n) {
-  const item = document.getElementById('pp-item-'+n)?.value || '파이프';
-  const unitEl = document.getElementById('pp-unit-'+n);
+  var item = document.getElementById('pp-item-'+n) ? document.getElementById('pp-item-'+n).value : '파이프';
+  var unitEl = document.getElementById('pp-unit-'+n);
   if(unitEl) unitEl.textContent = PP_UNIT[item] || 'EA';
   ppCalcAll();
 }
 
 function ppDelRow(n) {
-  const tr = document.getElementById('pp-row-'+n);
+  var tr = document.getElementById('pp-row-'+n);
   if(tr) tr.remove();
   if(document.getElementById('pp-tbody').children.length===0) ppAddRow();
   ppCalcAll();
 }
 
 function ppCalcAll() {
-  const diPrice = parseFloat(document.getElementById('pp_di_price')?.value)||28000;
-  const MD_RATE=280000, EXP_RATE=50000;
-  let totalMat=0, totalDI=0;
-
-  Array.from(document.getElementById('pp-tbody').children).forEach(tr => {
-    const n = tr.id.replace('pp-row-','');
-    const item   = document.getElementById('pp-item-'+n)?.value||'파이프';
-    const size   = document.getElementById('pp-size-'+n)?.value||'100A';
-    const qty    = parseFloat(document.getElementById('pp-qty-'+n)?.value)||0;
-    const uprice = parseFloat(document.getElementById('pp-uprice-'+n)?.value)||0;
-
-    const matCost = uprice * qty;
-    totalMat += matCost;
-
-    const baseDI = PP_DI[size]||1.0;
-    const wt     = PP_WT[item]||1.0;
-    let di = item==='파이프' ? (qty/6)*baseDI*wt : qty*baseDI*wt;
-    totalDI += di;
-
-    const laborCost = di * diPrice;
-    const mcEl = document.getElementById('pp-mat-cost-'+n);
-    const diEl = document.getElementById('pp-di-'+n);
-    const lbEl = document.getElementById('pp-labor-'+n);
-    if(mcEl) mcEl.textContent = matCost>0 ? Math.round(matCost).toLocaleString('ko-KR') : '—';
-    if(diEl) diEl.textContent = di.toFixed(2);
-    if(lbEl) lbEl.textContent = Math.round(laborCost).toLocaleString('ko-KR');
-  });
-
-  const support    = totalMat*0.10;
-  const misc       = totalMat*0.05;
-  const consumable = totalMat*0.03;
-  const totalMatAll= totalMat+support+misc+consumable;
-  const totalLaborDI = totalDI*diPrice;
-  const md    = Math.max(2,Math.round(totalLaborDI/MD_RATE));
-  const mdFab = Math.max(1,Math.round(md/3));
-  const mdWeld= Math.max(1,Math.round(md/3));
-  const mdAst = Math.max(1,md-mdFab-mdWeld);
-  const labSum= (mdFab+mdWeld+mdAst)*MD_RATE;
-  const expSum= (mdFab+mdWeld+mdAst)*EXP_RATE;
-  const totalLabor= labSum+expSum;
-  const grand= totalMatAll+totalLabor;
-
-  const won = n => n>0 ? Math.round(n).toLocaleString('ko-KR')+'원' : '—';
-  const safe = id => { const el=document.getElementById(id); if(el) el.textContent=won(totalMat); };
-  document.getElementById('pp-sum-mat').textContent        = won(totalMat);
-  document.getElementById('pp-sum-labor').textContent      = won(totalLabor);
-  document.getElementById('pp-sum-di').textContent         = totalDI>0 ? totalDI.toFixed(2)+' D.I' : '—';
-  document.getElementById('pp-sum-total').textContent      = won(grand);
-  document.getElementById('pp-sum-support').textContent    = won(support);
-  document.getElementById('pp-sum-misc').textContent       = won(misc);
-  document.getElementById('pp-sum-consumable').textContent = won(consumable);
-  document.getElementById('pp-labor-md').textContent       = md+' M.D';
-  document.getElementById('pp-labor-fab').textContent      = mdFab+' M.D / '+won(mdFab*MD_RATE);
-  document.getElementById('pp-labor-weld').textContent     = mdWeld+' M.D / '+won(mdWeld*MD_RATE);
-  document.getElementById('pp-labor-assist').textContent   = mdAst+' M.D / '+won(mdAst*MD_RATE);
-  document.getElementById('pp-labor-exp').textContent      = won(expSum);
-  document.getElementById('pp-labor-total').textContent    = won(totalLabor);
+  var diPrice = parseFloat(document.getElementById('pp_di_price') ? document.getElementById('pp_di_price').value : 28000)||28000;
+  var MD_RATE=280000, EXP_RATE=50000;
+  var totalMat=0, totalDI=0;
+  var rows = document.getElementById('pp-tbody').children;
+  for(var r=0;r<rows.length;r++){
+    var n = rows[r].id.replace('pp-row-','');
+    var item   = document.getElementById('pp-item-'+n) ? document.getElementById('pp-item-'+n).value : '파이프';
+    var size   = document.getElementById('pp-size-'+n) ? document.getElementById('pp-size-'+n).value : '100A';
+    var qty    = parseFloat(document.getElementById('pp-qty-'+n) ? document.getElementById('pp-qty-'+n).value : 0)||0;
+    var uprice = parseFloat(document.getElementById('pp-uprice-'+n) ? document.getElementById('pp-uprice-'+n).value : 0)||0;
+    var matCost = uprice*qty; totalMat+=matCost;
+    var baseDI=PP_DI[size]||1.0, wt=PP_WT[item]||1.0;
+    var di = item==='파이프' ? (qty/6)*baseDI*wt : qty*baseDI*wt;
+    totalDI+=di;
+    var laborCost=di*diPrice;
+    var mcEl=document.getElementById('pp-mat-cost-'+n), diEl=document.getElementById('pp-di-'+n), lbEl=document.getElementById('pp-labor-'+n);
+    if(mcEl) mcEl.textContent=matCost>0?Math.round(matCost).toLocaleString('ko-KR'):'-';
+    if(diEl) diEl.textContent=di.toFixed(2);
+    if(lbEl) lbEl.textContent=Math.round(laborCost).toLocaleString('ko-KR');
+  }
+  var support=totalMat*0.10, misc=totalMat*0.05, consumable=totalMat*0.03;
+  var totalMatAll=totalMat+support+misc+consumable;
+  var totalLaborDI=totalDI*diPrice;
+  var md=Math.max(2,Math.round(totalLaborDI/MD_RATE));
+  var mdFab=Math.max(1,Math.round(md/3)), mdWeld=Math.max(1,Math.round(md/3)), mdAst=Math.max(1,md-mdFab-mdWeld);
+  var labSum=(mdFab+mdWeld+mdAst)*MD_RATE, expSum=(mdFab+mdWeld+mdAst)*EXP_RATE;
+  var totalLabor=labSum+expSum, grand=totalMatAll+totalLabor;
+  function won(v){return v>0?Math.round(v).toLocaleString('ko-KR')+'원':'-';}
+  function set(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  set('pp-sum-mat',won(totalMat)); set('pp-sum-labor',won(totalLabor));
+  set('pp-sum-di',totalDI>0?totalDI.toFixed(2)+' D.I':'-'); set('pp-sum-total',won(grand));
+  set('pp-sum-support',won(support)); set('pp-sum-misc',won(misc)); set('pp-sum-consumable',won(consumable));
+  set('pp-labor-md',md+' M.D');
+  set('pp-labor-fab',mdFab+' M.D / '+won(mdFab*MD_RATE));
+  set('pp-labor-weld',mdWeld+' M.D / '+won(mdWeld*MD_RATE));
+  set('pp-labor-assist',mdAst+' M.D / '+won(mdAst*MD_RATE));
+  set('pp-labor-exp',won(expSum)); set('pp-labor-total',won(totalLabor));
 }
 
-async function ppParseText() {
-  const text = document.getElementById('pp_text_input')?.value.trim();
+function ppParseText() {
+  var text = document.getElementById('pp_text_input') ? document.getElementById('pp_text_input').value.trim() : '';
   if(!text){alert('자재 내용을 입력해주세요.');return;}
-  const btn = event.target;
-  btn.textContent='⏳ AI 파싱 중...'; btn.disabled=true;
-  try {
-    const res = await fetch(PP_URL+'/api/parse-piping-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
-    const d = await res.json();
+  fetch(PP_URL+'/api/parse-piping-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
+  .then(function(r){return r.json();})
+  .then(function(d){
     if(!d.success) throw new Error(d.error||'파싱 실패');
     document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
-    (d.items||[]).forEach(item=>ppAddRow(item));
+    var items=d.items||[]; for(var i=0;i<items.length;i++) ppAddRow(items[i]);
     ppSetMode('manual');
-    alert('✅ '+(d.items||[]).length+'개 항목 인식 완료! 아래 표를 반드시 확인하세요.');
-  } catch(e){alert('오류: '+e.message);}
-  finally{btn.textContent='🤖 AI 자동 파싱';btn.disabled=false;}
+    alert('AI 파싱 완료! '+items.length+'개 항목을 확인하세요.');
+  }).catch(function(e){alert('오류: '+e.message);});
 }
 
-async function ppHandleExcel(file) {
+function ppHandleExcel(file) {
   if(!file) return;
-  const zone  = document.getElementById('pp-excel-zone');
-  const title = document.getElementById('pp-excel-title');
-  zone.style.background='var(--light-blue)'; zone.style.borderColor='var(--primary)';
-  title.textContent='⏳ AI 분석 중...';
-  try {
-    const b64 = await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('실패'));r.readAsDataURL(file);});
-    const resp = await fetch(PP_URL+'/api/parse-piping-excel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({excel_base64:b64,file_type:'xlsx'})});
-    const d = await resp.json();
-    if(!d.success) throw new Error(d.error||'인식 실패');
-    document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
-    (d.items||[]).forEach(item=>ppAddRow(item));
-    title.textContent='✅ '+file.name+' — '+(d.items||[]).length+'개 인식 완료 (반드시 확인!)';
-    zone.style.background='var(--green-lt)'; zone.style.borderColor='var(--green)';
-    ppSetMode('manual');
-  } catch(e){
-    title.textContent='❌ 인식 실패 — 직접 입력해주세요';
-    zone.style.background='var(--orange-lt)'; zone.style.borderColor='var(--orange)';
-    alert('오류: '+e.message);
-  }
+  var title=document.getElementById('pp-excel-title');
+  if(title) title.textContent='AI 분석 중...';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var b64=e.target.result.split(',')[1];
+    fetch(PP_URL+'/api/parse-piping-excel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({excel_base64:b64,file_type:'xlsx'})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.success) throw new Error(d.error||'인식 실패');
+      document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
+      var items=d.items||[]; for(var i=0;i<items.length;i++) ppAddRow(items[i]);
+      if(title) title.textContent=file.name+' - '+items.length+'개 인식 완료 (반드시 확인!)';
+      ppSetMode('manual');
+    }).catch(function(e){if(title) title.textContent='인식 실패'; alert('오류: '+e.message);});
+  };
+  reader.readAsDataURL(file);
 }
 
-function ppSetupDrag(zoneId, inputId, handleFn) {
-  const zone = document.getElementById(zoneId);
-  if(!zone) return;
-  zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.borderColor='var(--primary)';zone.style.background='var(--light-blue)';});
-  zone.addEventListener('dragleave',()=>{zone.style.borderColor='';zone.style.background='';});
-  zone.addEventListener('drop',e=>{e.preventDefault();zone.style.borderColor='';zone.style.background='';const f=e.dataTransfer.files[0];if(f)handleFn(f);});
+function ppSetupDrag(zoneId,inputId,handleFn) {
+  var zone=document.getElementById(zoneId); if(!zone) return;
+  zone.addEventListener('dragover',function(e){e.preventDefault();zone.style.borderColor='var(--primary)';});
+  zone.addEventListener('dragleave',function(){zone.style.borderColor='';});
+  zone.addEventListener('drop',function(e){e.preventDefault();zone.style.borderColor='';var f=e.dataTransfer.files[0];if(f)handleFn(f);});
 }
 
-async function ppSubmit() {
-  const company = document.getElementById('pp_company').value.trim();
-  const contact = document.getElementById('pp_contact').value.trim();
-  const email   = document.getElementById('pp_email').value.trim();
+function ppSubmit() {
+  var company=document.getElementById('pp_company')?document.getElementById('pp_company').value.trim():'';
+  var contact=document.getElementById('pp_contact')?document.getElementById('pp_contact').value.trim():'';
+  var email=document.getElementById('pp_email')?document.getElementById('pp_email').value.trim():'';
   if(!company||!contact||!email){alert('고객 정보를 모두 입력해주세요.');return;}
-
-  const rows = Array.from(document.getElementById('pp-tbody').children).map(tr=>{
-    const n = tr.id.replace('pp-row-','');
-    return {
-      item:   document.getElementById('pp-item-'+n)?.value,
-      mat:    document.getElementById('pp-mat-'+n)?.value,
-      size:   document.getElementById('pp-size-'+n)?.value,
-      qty:    parseFloat(document.getElementById('pp-qty-'+n)?.value)||0,
-      unit:   document.getElementById('pp-unit-'+n)?.textContent,
-      uprice: parseFloat(document.getElementById('pp-uprice-'+n)?.value)||0,
-    };
-  }).filter(r=>r.qty>0);
-
+  var rows=[], trs=document.getElementById('pp-tbody').children;
+  for(var r=0;r<trs.length;r++){
+    var n=trs[r].id.replace('pp-row-','');
+    var qty=parseFloat(document.getElementById('pp-qty-'+n)?document.getElementById('pp-qty-'+n).value:0)||0;
+    if(qty<=0) continue;
+    rows.push({item:document.getElementById('pp-item-'+n)?document.getElementById('pp-item-'+n).value:'',mat:document.getElementById('pp-mat-'+n)?document.getElementById('pp-mat-'+n).value:'',size:document.getElementById('pp-size-'+n)?document.getElementById('pp-size-'+n).value:'',qty:qty,unit:document.getElementById('pp-unit-'+n)?document.getElementById('pp-unit-'+n).textContent:'EA',uprice:parseFloat(document.getElementById('pp-uprice-'+n)?document.getElementById('pp-uprice-'+n).value:0)||0});
+  }
   if(rows.length===0){alert('자재 물량을 입력해주세요.');return;}
-  const diPrice = parseFloat(document.getElementById('pp_di_price').value)||28000;
-  const btn = document.querySelector('#quote-piping .fbtn-submit');
-  btn.textContent='⏳ 처리 중...'; btn.disabled=true;
-  try {
-    const res = await fetch(PP_URL+'/api/quote-piping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company,contact,email,items:rows,di_unit_price:diPrice})});
-    const d = await res.json();
-    if(d.success){
-      alert('✅ 견적서가 '+email+'으로 발송되었습니다!
-
-총 견적금액: '+Math.round(d.total).toLocaleString('ko-KR')+'원 (VAT 별도)');
-    } else { alert('❌ 오류: '+d.message); }
-  } catch(e){alert('서버 연결 실패: '+e.message);}
-  finally{btn.textContent='📧 배관공사 견적서 이메일 발송';btn.disabled=false;}
+  var diPrice=parseFloat(document.getElementById('pp_di_price')?document.getElementById('pp_di_price').value:28000)||28000;
+  fetch(PP_URL+'/api/quote-piping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company:company,contact:contact,email:email,items:rows,di_unit_price:diPrice})})
+  .then(function(r){return r.json();})
+  .then(function(d){if(d.success){alert('견적서가 '+email+'으로 발송되었습니다! 총 견적금액: '+Math.round(d.total).toLocaleString('ko-KR')+'원 (VAT 별도)');}else{alert('오류: '+d.message);}})
+  .catch(function(e){alert('서버 연결 실패: '+e.message);});
 }
 
 function ppReset() {
-  ['pp_company','pp_contact','pp_email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  var ids=['pp_company','pp_contact','pp_email'];
+  for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el)el.value='';}
   document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
   ppAddRow();
-  document.getElementById('pp_di_price').value=28000;
-  ppSetMode('manual');
-  ppCalcAll();
+  if(document.getElementById('pp_di_price')) document.getElementById('pp_di_price').value=28000;
+  ppSetMode('manual'); ppCalcAll();
 }
 </script>
 
