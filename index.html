@@ -1289,7 +1289,6 @@ if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElement
 if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
 if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
 if(name==='quote-piping'){
-  if(typeof ppAddRow !== 'undefined' && document.getElementById('pp-tbody')&&document.getElementById('pp-tbody').children.length===0) ppAddRow();
   if(typeof ppSetupDrag !== 'undefined') ppSetupDrag('pp-excel-zone','pp_excel_input',ppHandleExcel);
 }
 if(name==='quote-fan-blower'){
@@ -3322,6 +3321,12 @@ function logoClick() {
 </div><!-- /quote-piping -->
 
 <script>
+function ppDiPriceInput(el) {
+  var raw = el.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw) || 28000;
+  el.value = num.toLocaleString('ko-KR');
+  ppCalcAll();
+}
 var PP_URL = 'https://api.kvael.co.kr';
 var ppRowCount = 0;
 var ppCurrentMode = 'manual';
@@ -3393,7 +3398,7 @@ function ppDelRow(n) {
 }
 
 function ppCalcAll() {
-  var diPrice = parseFloat(document.getElementById('pp_di_price') ? document.getElementById('pp_di_price').value : 28000)||28000;
+  var diRaw = document.getElementById('pp_di_price') ? document.getElementById('pp_di_price').value.replace(/[^0-9]/g,'') : '28000'; var diPrice = parseInt(diRaw)||28000;
   var MD_RATE=280000, EXP_RATE=50000;
   var totalMat=0, totalDI=0;
   var rows = document.getElementById('pp-tbody').children;
