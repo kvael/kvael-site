@@ -3154,17 +3154,17 @@ function logoClick() {
 
   <!-- 입력 방식 선택 -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-    <div style="background:var(--bg2);border:2px solid var(--primary);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="ppSetMode('manual')" id="pp-mode-manual">
+    <div style="background:var(--bg2);border:2px solid var(--primary);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="if(typeof ppSetMode!=='undefined')ppSetMode('manual')" id="pp-mode-manual">
       <div style="font-size:22px;margin-bottom:6px">✏️</div>
       <div style="font-size:13px;font-weight:700;color:var(--primary)">직접 입력</div>
       <div style="font-size:11px;color:var(--text2)">품목별 수량 직접 입력</div>
     </div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="ppSetMode('text')" id="pp-mode-text">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="if(typeof ppSetMode!=='undefined')ppSetMode('text')" id="pp-mode-text">
       <div style="font-size:22px;margin-bottom:6px">💬</div>
       <div style="font-size:13px;font-weight:700;color:var(--text2)">텍스트 입력</div>
       <div style="font-size:11px;color:var(--text3)">자유 형식 → AI 자동 파싱</div>
     </div>
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="ppSetMode('excel')" id="pp-mode-excel">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="if(typeof ppSetMode!=='undefined')ppSetMode('excel')" id="pp-mode-excel">
       <div style="font-size:22px;margin-bottom:6px">📊</div>
       <div style="font-size:13px;font-weight:700;color:var(--text2)">엑셀 업로드</div>
       <div style="font-size:11px;color:var(--text3)">고객 엑셀 → AI 자동 인식</div>
@@ -3202,7 +3202,7 @@ function logoClick() {
     <label style="font-size:12px;font-weight:700;color:var(--primary)">다이아인치(D.I) 단가</label>
     <input type="number" id="pp_di_price" value="28000" step="1000" oninput="ppCalcAll()" style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;width:120px;text-align:center">
     <span style="font-size:12px;color:var(--text2)">원/D.I · 변경 가능</span>
-    <span style="margin-left:auto;font-size:11px;color:var(--text3)">※ 용접 배관 공사 기준</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--text3)">※ 3인 1팀 공사 기준</span>
   </div>
 
   <!-- 자재 입력 테이블 -->
@@ -3229,7 +3229,7 @@ function logoClick() {
           <tbody id="pp-tbody"></tbody>
         </table>
       </div>
-      <button onclick="ppAddRow()" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px;background:var(--teal-lt,#eafaf8);border:1px dashed #7dd4cc;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:#0e7a6e;width:100%;font-family:'Pretendard',sans-serif">＋ 자재 항목 추가</button>
+      <button onclick="if(typeof ppAddRow!=='undefined')ppAddRow()" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px;background:var(--teal-lt,#eafaf8);border:1px dashed #7dd4cc;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:#0e7a6e;width:100%;font-family:'Pretendard',sans-serif">＋ 자재 항목 추가</button>
     </div>
   </div>
 
@@ -3284,15 +3284,15 @@ function logoClick() {
             <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-md">—</div>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
-            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Fabrication (40%)</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Fabrication (33.3%)</div>
             <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-fab">—</div>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
-            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Welding (40%)</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Welding (33.3%)</div>
             <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-weld">—</div>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
-            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Assistant (20%)</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Assistant (33.3%)</div>
             <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-assist">—</div>
           </div>
           <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
@@ -3389,7 +3389,7 @@ function ppDelRow(n) {
 
 function ppCalcAll() {
   const diPrice = parseFloat(document.getElementById('pp_di_price')?.value)||28000;
-  const MD_RATE=330000, EXP_RATE=50000;
+  const MD_RATE=280000, EXP_RATE=50000;
   let totalMat=0, totalDI=0;
 
   Array.from(document.getElementById('pp-tbody').children).forEach(tr => {
@@ -3422,8 +3422,8 @@ function ppCalcAll() {
   const totalMatAll= totalMat+support+misc+consumable;
   const totalLaborDI = totalDI*diPrice;
   const md    = Math.max(2,Math.round(totalLaborDI/MD_RATE));
-  const mdFab = Math.max(1,Math.round(md*0.4));
-  const mdWeld= Math.max(1,Math.round(md*0.4));
+  const mdFab = Math.max(1,Math.round(md/3));
+  const mdWeld= Math.max(1,Math.round(md/3));
   const mdAst = Math.max(1,md-mdFab-mdWeld);
   const labSum= (mdFab+mdWeld+mdAst)*MD_RATE;
   const expSum= (mdFab+mdWeld+mdAst)*EXP_RATE;
