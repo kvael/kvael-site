@@ -3199,7 +3199,7 @@ function logoClick() {
   <div style="display:flex;align-items:center;gap:12px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:10px 16px;margin-bottom:12px">
     <span style="font-size:16px">🔧</span>
     <label style="font-size:12px;font-weight:700;color:var(--primary)">다이아인치(D.I) 단가</label>
-    <input type="number" id="pp_di_price" value="28000" step="1000" oninput="ppCalcAll()" style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;width:130px;text-align:center" onchange="this.value=parseInt(this.value).toLocaleString("ko-KR")">
+    <input type="text" id="pp_di_price" value="28,000" oninput="ppDiInput(this)" style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;width:130px;text-align:center">
     <span style="font-size:12px;color:var(--text2)">원/D.I · 변경 가능</span>
     <span style="margin-left:auto;font-size:11px;color:var(--text3)">※ 3인 1팀 공사 기준</span>
   </div>
