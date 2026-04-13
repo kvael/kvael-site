@@ -3459,7 +3459,7 @@ async function ppParseText() {
     document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
     (d.items||[]).forEach(item=>ppAddRow(item));
     ppSetMode('manual');
-    alert('✅ '+（d.items||[]).length+'개 항목 인식 완료! 아래 표를 반드시 확인하세요.');
+    alert('✅ '+(d.items||[]).length+'개 항목 인식 완료! 아래 표를 반드시 확인하세요.');
   } catch(e){alert('오류: '+e.message);}
   finally{btn.textContent='🤖 AI 자동 파싱';btn.disabled=false;}
 }
