@@ -3321,6 +3321,12 @@ function logoClick() {
 </div><!-- /quote-piping -->
 
 <script>
+function ppDiInput(el) {
+  var raw = el.value.replace(/[^0-9]/g, '');
+  var num = parseInt(raw) || 28000;
+  el.value = num.toLocaleString('ko-KR');
+  ppCalcAll();
+}
 function ppDiPriceInput(el) {
   var raw = el.value.replace(/[^0-9]/g, '');
   var num = parseInt(raw) || 28000;
@@ -3491,7 +3497,7 @@ function ppSubmit() {
     rows.push({item:document.getElementById('pp-item-'+n)?document.getElementById('pp-item-'+n).value:'',mat:document.getElementById('pp-mat-'+n)?document.getElementById('pp-mat-'+n).value:'',size:document.getElementById('pp-size-'+n)?document.getElementById('pp-size-'+n).value:'',qty:qty,unit:document.getElementById('pp-unit-'+n)?document.getElementById('pp-unit-'+n).textContent:'EA',uprice:parseFloat(document.getElementById('pp-uprice-'+n)?document.getElementById('pp-uprice-'+n).value:0)||0});
   }
   if(rows.length===0){alert('자재 물량을 입력해주세요.');return;}
-  var diPrice=parseFloat(document.getElementById('pp_di_price')?document.getElementById('pp_di_price').value:28000)||28000;
+  var diRaw2=document.getElementById('pp_di_price')?document.getElementById('pp_di_price').value.replace(/[^0-9]/g,''):'28000'; var diPrice=parseInt(diRaw2)||28000;
   fetch(PP_URL+'/api/quote-piping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company:company,contact:contact,email:email,items:rows,di_unit_price:diPrice})})
   .then(function(r){return r.json();})
   .then(function(d){if(d.success){alert('견적서가 '+email+'으로 발송되었습니다! 총 견적금액: '+Math.round(d.total).toLocaleString('ko-KR')+'원 (VAT 별도)');}else{alert('오류: '+d.message);}})
@@ -3503,7 +3509,7 @@ function ppReset() {
   for(var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el)el.value='';}
   document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
   ppAddRow();
-  if(document.getElementById('pp_di_price')) document.getElementById('pp_di_price').value=28000;
+  if(document.getElementById('pp_di_price')) document.getElementById('pp_di_price').value='28,000';
   ppSetMode('manual'); ppCalcAll();
 }
 </script>
