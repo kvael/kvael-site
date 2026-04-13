@@ -3200,7 +3200,7 @@ function logoClick() {
   <div style="display:flex;align-items:center;gap:12px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:10px 16px;margin-bottom:12px">
     <span style="font-size:16px">🔧</span>
     <label style="font-size:12px;font-weight:700;color:var(--primary)">다이아인치(D.I) 단가</label>
-    <input type="number" id="pp_di_price" value="28000" step="1000" oninput="ppCalcAll()" style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;width:120px;text-align:center">
+    <input type="number" id="pp_di_price" value="28000" step="1000" oninput="ppCalcAll()" style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;width:130px;text-align:center" onchange="this.value=parseInt(this.value).toLocaleString("ko-KR")">
     <span style="font-size:12px;color:var(--text2)">원/D.I · 변경 가능</span>
     <span style="margin-left:auto;font-size:11px;color:var(--text3)">※ 3인 1팀 공사 기준</span>
   </div>
@@ -3364,7 +3364,7 @@ function ppAddRow(data) {
     +'<td style="padding:3px"><select id="pp-item-'+n+'" onchange="ppUpdateRow('+n+')" style="min-width:105px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px">'+itemOpts+'</select></td>'
     +'<td style="padding:3px"><select id="pp-mat-'+n+'" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px">'+matOpts+'</select></td>'
     +'<td style="padding:3px"><select id="pp-size-'+n+'" onchange="ppCalcAll()" style="min-width:65px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px">'+sizeOpts+'</select></td>'
-    +'<td style="padding:3px"><input type="number" id="pp-qty-'+n+'" value="'+defaultQty+'" min="0" step="0.1" oninput="ppCalcAll()" style="width:60px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:center"></td>'
+    +'<td style="padding:3px"><input type="number" id="pp-qty-'+n+'" value="'+defaultQty+'" min="0" step="1" oninput="ppCalcAll()" style="width:60px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:center"></td>'
     +'<td style="text-align:center;font-size:11px;color:var(--text2);font-weight:600;padding:5px 4px" id="pp-unit-'+n+'">'+defaultUnit+'</td>'
     +'<td style="padding:3px"><input type="number" id="pp-uprice-'+n+'" value="0" min="0" step="1000" oninput="ppCalcAll()" placeholder="DB조회" style="width:85px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:right"></td>'
     +'<td style="font-size:11px;font-weight:700;color:var(--navy);font-family:monospace;text-align:right;padding:5px 6px" id="pp-mat-cost-'+n+'">-</td>'
