@@ -386,9 +386,9 @@ select option{background:#fff}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div class="dropdown" id="dd-const">
-          <button class="dd-item" onclick="showPage('wip');closeDropdown()">
+          <button class="dd-item" onclick="showPage('quote-piping');closeDropdown()">
             <div class="dd-icon">🔩</div>
-            <div><div class="dd-label">배관 공사</div><div class="dd-sub">준비 중</div></div>
+            <div><div class="dd-label">배관 공사</div><div class="dd-sub">D.I 기반 · 자동 견적</div></div>
           </button>
         </div>
       </div>
@@ -421,7 +421,7 @@ select option{background:#fff}
   <button class="mob-sub" onclick="showPage('quote-instrument');closeMenu()">📊 Instrument</button>
   <button class="mob-sub" onclick="showPage('quote-fan-blower');closeMenu()">🌀 Fan / Blower</button>
   <div style="font-size:10px;font-weight:700;color:var(--text3);padding:6px 16px;text-transform:uppercase;letter-spacing:.8px">AI Construction</div>
-  <button class="mob-sub" onclick="showPage('wip');closeMenu()">🔩 배관 공사 (준비중)</button>
+  <button class="mob-sub" onclick="showPage('quote-piping');closeMenu()">🔩 배관 공사</button>
   <div class="mob-divider"></div>
   <button class="mob-item" onclick="showPage('support');closeMenu()">고객 지원</button>
   <button class="mob-item" style="color:var(--primary);font-weight:700" onclick="showPage('quote-round');closeMenu()">무료 견적 요청 →</button>
@@ -1288,6 +1288,10 @@ function showPage(name) {
 if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElementById('pm-tbody').children.length===0){for(let i=0;i<5;i++)pmAddRow();}
 if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
 if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
+if(name==='quote-piping'){
+  if(document.getElementById('pp-tbody')&&document.getElementById('pp-tbody').children.length===0) ppAddRow();
+  ppSetupDrag('pp-excel-zone','pp_excel_input',ppHandleExcel);
+}
 if(name==='quote-fan-blower'){
   if(document.getElementById('fan-tbody')&&document.getElementById('fan-tbody').children.length===0) fbAddRow('fan');
   if(document.getElementById('blower-tbody')&&document.getElementById('blower-tbody').children.length===0) fbAddRow('blower');
@@ -3119,6 +3123,419 @@ function logoClick() {
       alert('코드가 올바르지 않습니다.');
     }
   }
+}
+</script>
+
+<!-- ══════════════ 배관공사 견적 ══════════════ -->
+<div id="quote-piping" class="page">
+<div class="quote-page-wrap">
+<div class="quote-page-inner">
+  <button class="qp-back" onclick="showPage('home')">← 홈으로</button>
+  <div class="qp-title-wrap">
+    <div class="qp-title">배관공사 AI 견적 시스템</div>
+    <div class="qp-sub">K-VAEL · 용접 배관 자재 물량 기반 · 다이아인치(D.I) 자동 인건비 산출 · 참고용 견적 자동 발송</div>
+  </div>
+  <div class="notice-bar">
+    ⚠ 본 견적은 <strong>참고용(Budgetary)</strong>이며 실제 금액과 차이가 있을 수 있습니다.
+    모든 배관 부속은 <strong>용접 타입(STS304)</strong> 기준이며, 정확한 견적은 K-VAEL 담당자에게 문의해 주세요.
+  </div>
+
+  <!-- 고객 정보 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#1a5fad"></div>고객 정보</div>
+    <div class="fcard-body">
+      <div class="g3">
+        <div class="field"><label>회사명</label><input type="text" id="pp_company" placeholder="(주)고객사명"></div>
+        <div class="field"><label>담당자명</label><input type="text" id="pp_contact" placeholder="홍길동"></div>
+        <div class="field"><label>이메일 (견적서 수신)</label><input type="email" id="pp_email" placeholder="email@company.com"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 입력 방식 선택 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+    <div style="background:var(--bg2);border:2px solid var(--primary);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="ppSetMode('manual')" id="pp-mode-manual">
+      <div style="font-size:22px;margin-bottom:6px">✏️</div>
+      <div style="font-size:13px;font-weight:700;color:var(--primary)">직접 입력</div>
+      <div style="font-size:11px;color:var(--text2)">품목별 수량 직접 입력</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="ppSetMode('text')" id="pp-mode-text">
+      <div style="font-size:22px;margin-bottom:6px">💬</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text2)">텍스트 입력</div>
+      <div style="font-size:11px;color:var(--text3)">자유 형식 → AI 자동 파싱</div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer" onclick="ppSetMode('excel')" id="pp-mode-excel">
+      <div style="font-size:22px;margin-bottom:6px">📊</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text2)">엑셀 업로드</div>
+      <div style="font-size:11px;color:var(--text3)">고객 엑셀 → AI 자동 인식</div>
+    </div>
+  </div>
+
+  <!-- 텍스트 입력 패널 -->
+  <div id="pp-text-panel" style="display:none" class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#6030a8"></div>텍스트 입력 — AI가 자동으로 파싱합니다</div>
+    <div class="fcard-body">
+      <textarea id="pp_text_input" rows="5" placeholder="예: 100A 파이프 30m, 100A 엘보 10개, 100A 플랜지 20개, 50A 버터플라이밸브 5개" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:13px;font-family:'Pretendard',sans-serif;resize:vertical"></textarea>
+      <button onclick="ppParseText()" style="margin-top:8px;background:linear-gradient(135deg,#6030a8,#1a5fad);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Pretendard',sans-serif">🤖 AI 자동 파싱</button>
+      <div style="font-size:11px;color:var(--orange);margin-top:6px">⚠ AI가 파싱한 결과를 아래 표에서 반드시 확인하세요.</div>
+    </div>
+  </div>
+
+  <!-- 엑셀 업로드 패널 -->
+  <div id="pp-excel-panel" style="display:none" class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b85c00"></div>엑셀 업로드 — 고객 자재 물량표를 AI가 자동 인식</div>
+    <div class="fcard-body">
+      <div id="pp-excel-zone" onclick="document.getElementById('pp_excel_input').click()"
+        style="border:2px dashed var(--border2);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--bg)">
+        <div style="font-size:28px;margin-bottom:6px">📊</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text2)" id="pp-excel-title">엑셀 파일(.xlsx)을 클릭하거나 드래그하여 업로드</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">AI가 자재명, 사이즈, 수량을 자동으로 읽어 입력합니다</div>
+      </div>
+      <input type="file" id="pp_excel_input" accept=".xlsx,.xls" style="display:none" onchange="ppHandleExcel(this.files[0])">
+      <div style="font-size:11px;color:var(--orange);margin-top:6px">⚠ AI가 인식한 결과를 아래 표에서 반드시 확인하세요.</div>
+    </div>
+  </div>
+
+  <!-- D.I 단가 설정 -->
+  <div style="display:flex;align-items:center;gap:12px;background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:8px;padding:10px 16px;margin-bottom:12px">
+    <span style="font-size:16px">🔧</span>
+    <label style="font-size:12px;font-weight:700;color:var(--primary)">다이아인치(D.I) 단가</label>
+    <input type="number" id="pp_di_price" value="28000" step="1000" oninput="ppCalcAll()" style="background:#fff;border:1px solid var(--blue-bd);border-radius:6px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;width:120px;text-align:center">
+    <span style="font-size:12px;color:var(--text2)">원/D.I · 변경 가능</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--text3)">※ 용접 배관 공사 기준</span>
+  </div>
+
+  <!-- 자재 입력 테이블 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#0e7a6e"></div>자재 물량 입력 — 수량 입력 시 D.I 및 금액 자동 계산</div>
+    <div class="fcard-body">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:900px;font-size:12px">
+          <thead>
+            <tr>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;width:28px">No.</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:110px">품목</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:75px">재질</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:70px">사이즈</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:60px">수량</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:40px">단위</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:85px">단가(원)</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:95px">자재비(원)</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:55px;background:#1a5fad">총 D.I</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;min-width:80px;background:#1a5fad">인건비(원)</th>
+              <th style="background:var(--navy);color:#fff;padding:8px 4px;font-size:10px;width:28px"></th>
+            </tr>
+          </thead>
+          <tbody id="pp-tbody"></tbody>
+        </table>
+      </div>
+      <button onclick="ppAddRow()" style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px;background:var(--teal-lt,#eafaf8);border:1px dashed #7dd4cc;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:#0e7a6e;width:100%;font-family:'Pretendard',sans-serif">＋ 자재 항목 추가</button>
+    </div>
+  </div>
+
+  <!-- 합계 -->
+  <div class="fcard">
+    <div class="fcard-hdr"><div class="fdot" style="background:#b85c00"></div>BOQ 합계</div>
+    <div class="fcard-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">자재비 소계</div>
+          <div style="font-size:16px;font-weight:800;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-sum-mat">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">인건비 소계</div>
+          <div style="font-size:16px;font-weight:800;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-sum-labor">—</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">총 D.I</div>
+          <div style="font-size:16px;font-weight:800;color:var(--primary);font-family:'JetBrains Mono',monospace" id="pp-sum-di">—</div>
+        </div>
+        <div style="background:var(--navy);border-radius:10px;padding:14px 16px">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">총 견적금액</div>
+          <div style="font-size:18px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace" id="pp-sum-total">—</div>
+        </div>
+      </div>
+
+      <!-- 추가 자재 -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">📦 추가 자재 (자동 계산)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">SUPPORT MATERIAL (10%)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-sum-support">—</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">MISC. MATERIAL (5%)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-sum-misc">—</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">CONSUMABLE (3%)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-sum-consumable">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 인건비 상세 -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">👷 인건비 상세 (330,000원/M.D)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">총 M.D</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-md">—</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Fabrication (40%)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-fab">—</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Welding (40%)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-weld">—</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Assistant (20%)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-assist">—</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:3px">Expense (50,000원/M.D)</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace" id="pp-labor-exp">—</div>
+          </div>
+          <div style="background:var(--light-blue);border:1px solid var(--blue-bd);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;font-weight:700;color:var(--primary);margin-bottom:3px">인건비 합계</div>
+            <div style="font-size:13px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace" id="pp-labor-total">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 버튼 -->
+  <div class="fbtn-wrap">
+    <button class="fbtn fbtn-reset" onclick="ppReset()">↺ 초기화</button>
+    <button class="fbtn fbtn-submit" onclick="ppSubmit()" style="background:linear-gradient(135deg,#0e7a6e,#1a5fad)">📧 배관공사 견적서 이메일 발송</button>
+  </div>
+  <div style="height:36px"></div>
+</div>
+</div>
+</div><!-- /quote-piping -->
+
+<script>
+const PP_URL = 'https://api.kvael.co.kr';
+let ppRowCount = 0;
+let ppCurrentMode = 'manual';
+
+const PP_ITEMS = ['파이프','엘보','티','플랜지','레듀셔','캡','버터플라이밸브','게이트밸브','글로브밸브','볼밸브','플렉시블','체크밸브(판형)','체크밸브(스윙)'];
+const PP_MATS  = ['STS304','STS316L','SS275','SGP'];
+const PP_SIZES = ['15A','20A','25A','32A','40A','50A','65A','80A','100A','125A','150A','200A','250A','300A','350A','400A'];
+const PP_DI    = {'15A':0.5,'20A':0.75,'25A':1.0,'32A':1.25,'40A':1.5,'50A':2.0,'65A':2.5,'80A':3.0,'100A':4.0,'125A':5.0,'150A':6.0,'200A':8.0,'250A':10.0,'300A':12.0,'350A':14.0,'400A':16.0};
+const PP_WT    = {'파이프':1.0,'엘보':2.0,'티':3.0,'플랜지':1.5,'레듀셔':2.0,'캡':1.0,'버터플라이밸브':0.5,'게이트밸브':0.5,'글로브밸브':0.5,'볼밸브':0.5,'플렉시블':0.5,'체크밸브(판형)':0.5,'체크밸브(스윙)':0.5};
+const PP_UNIT  = {'파이프':'m'};
+
+function ppSetMode(mode) {
+  ppCurrentMode = mode;
+  ['manual','text','excel'].forEach(m => {
+    const el = document.getElementById('pp-mode-'+m);
+    if(el) {
+      el.style.border = m===mode ? '2px solid var(--primary)' : '1px solid var(--border)';
+      el.querySelector('div:nth-child(2)').style.color = m===mode ? 'var(--primary)' : 'var(--text2)';
+    }
+  });
+  document.getElementById('pp-text-panel').style.display  = mode==='text'  ? '' : 'none';
+  document.getElementById('pp-excel-panel').style.display = mode==='excel' ? '' : 'none';
+}
+
+function ppAddRow(data) {
+  ppRowCount++;
+  const n = ppRowCount;
+  const tbody = document.getElementById('pp-tbody');
+  const tr = document.createElement('tr');
+  tr.id = 'pp-row-' + n;
+
+  const defaultItem = data?.item || '파이프';
+  const defaultUnit = PP_UNIT[defaultItem] || 'EA';
+  const itemOpts  = PP_ITEMS.map(i => `<option value="${i}"${i===defaultItem?' selected':''}>${i}</option>`).join('');
+  const matOpts   = PP_MATS.map(m  => `<option value="${m}"${m===(data?.mat||'STS304')?' selected':''}>${m}</option>`).join('');
+  const sizeOpts  = PP_SIZES.map(s => `<option value="${s}"${s===(data?.size||'100A')?' selected':''}>${s}</option>`).join('');
+
+  tr.innerHTML = `
+    <td style="text-align:center;font-size:11px;color:var(--text3);padding:5px 3px">${n}</td>
+    <td style="padding:3px"><select id="pp-item-${n}" onchange="ppUpdateRow(${n})" style="min-width:105px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;font-family:'Pretendard',sans-serif">${itemOpts}</select></td>
+    <td style="padding:3px"><select id="pp-mat-${n}" style="min-width:70px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;font-family:'Pretendard',sans-serif">${matOpts}</select></td>
+    <td style="padding:3px"><select id="pp-size-${n}" onchange="ppCalcAll()" style="min-width:65px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;font-family:'Pretendard',sans-serif">${sizeOpts}</select></td>
+    <td style="padding:3px"><input type="number" id="pp-qty-${n}" value="${data?.qty||1}" min="0" step="0.1" oninput="ppCalcAll()" style="width:60px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:center"></td>
+    <td style="text-align:center;font-size:11px;color:var(--text2);font-weight:600;padding:5px 4px" id="pp-unit-${n}">${defaultUnit}</td>
+    <td style="padding:3px"><input type="number" id="pp-uprice-${n}" value="${data?.uprice||0}" min="0" step="1000" oninput="ppCalcAll()" placeholder="DB조회" style="width:85px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:5px 4px;font-size:11px;text-align:right"></td>
+    <td style="font-size:11px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace;text-align:right;padding:5px 6px" id="pp-mat-cost-${n}">—</td>
+    <td style="font-size:11px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace;text-align:center;background:var(--light-blue);padding:5px 6px" id="pp-di-${n}">—</td>
+    <td style="font-size:11px;font-weight:700;color:var(--navy);font-family:'JetBrains Mono',monospace;text-align:right;background:var(--light-blue);padding:5px 6px" id="pp-labor-${n}">—</td>
+    <td style="text-align:center;padding:3px"><button onclick="ppDelRow(${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:13px">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+  ppCalcAll();
+}
+
+function ppUpdateRow(n) {
+  const item = document.getElementById('pp-item-'+n)?.value || '파이프';
+  const unitEl = document.getElementById('pp-unit-'+n);
+  if(unitEl) unitEl.textContent = PP_UNIT[item] || 'EA';
+  ppCalcAll();
+}
+
+function ppDelRow(n) {
+  const tr = document.getElementById('pp-row-'+n);
+  if(tr) tr.remove();
+  if(document.getElementById('pp-tbody').children.length===0) ppAddRow();
+  ppCalcAll();
+}
+
+function ppCalcAll() {
+  const diPrice = parseFloat(document.getElementById('pp_di_price')?.value)||28000;
+  const MD_RATE=330000, EXP_RATE=50000;
+  let totalMat=0, totalDI=0;
+
+  Array.from(document.getElementById('pp-tbody').children).forEach(tr => {
+    const n = tr.id.replace('pp-row-','');
+    const item   = document.getElementById('pp-item-'+n)?.value||'파이프';
+    const size   = document.getElementById('pp-size-'+n)?.value||'100A';
+    const qty    = parseFloat(document.getElementById('pp-qty-'+n)?.value)||0;
+    const uprice = parseFloat(document.getElementById('pp-uprice-'+n)?.value)||0;
+
+    const matCost = uprice * qty;
+    totalMat += matCost;
+
+    const baseDI = PP_DI[size]||1.0;
+    const wt     = PP_WT[item]||1.0;
+    let di = item==='파이프' ? (qty/6)*baseDI*wt : qty*baseDI*wt;
+    totalDI += di;
+
+    const laborCost = di * diPrice;
+    const mcEl = document.getElementById('pp-mat-cost-'+n);
+    const diEl = document.getElementById('pp-di-'+n);
+    const lbEl = document.getElementById('pp-labor-'+n);
+    if(mcEl) mcEl.textContent = matCost>0 ? Math.round(matCost).toLocaleString('ko-KR') : '—';
+    if(diEl) diEl.textContent = di.toFixed(2);
+    if(lbEl) lbEl.textContent = Math.round(laborCost).toLocaleString('ko-KR');
+  });
+
+  const support    = totalMat*0.10;
+  const misc       = totalMat*0.05;
+  const consumable = totalMat*0.03;
+  const totalMatAll= totalMat+support+misc+consumable;
+  const totalLaborDI = totalDI*diPrice;
+  const md    = Math.max(2,Math.round(totalLaborDI/MD_RATE));
+  const mdFab = Math.max(1,Math.round(md*0.4));
+  const mdWeld= Math.max(1,Math.round(md*0.4));
+  const mdAst = Math.max(1,md-mdFab-mdWeld);
+  const labSum= (mdFab+mdWeld+mdAst)*MD_RATE;
+  const expSum= (mdFab+mdWeld+mdAst)*EXP_RATE;
+  const totalLabor= labSum+expSum;
+  const grand= totalMatAll+totalLabor;
+
+  const won = n => n>0 ? Math.round(n).toLocaleString('ko-KR')+'원' : '—';
+  const safe = id => { const el=document.getElementById(id); if(el) el.textContent=won(totalMat); };
+  document.getElementById('pp-sum-mat').textContent        = won(totalMat);
+  document.getElementById('pp-sum-labor').textContent      = won(totalLabor);
+  document.getElementById('pp-sum-di').textContent         = totalDI>0 ? totalDI.toFixed(2)+' D.I' : '—';
+  document.getElementById('pp-sum-total').textContent      = won(grand);
+  document.getElementById('pp-sum-support').textContent    = won(support);
+  document.getElementById('pp-sum-misc').textContent       = won(misc);
+  document.getElementById('pp-sum-consumable').textContent = won(consumable);
+  document.getElementById('pp-labor-md').textContent       = md+' M.D';
+  document.getElementById('pp-labor-fab').textContent      = mdFab+' M.D / '+won(mdFab*MD_RATE);
+  document.getElementById('pp-labor-weld').textContent     = mdWeld+' M.D / '+won(mdWeld*MD_RATE);
+  document.getElementById('pp-labor-assist').textContent   = mdAst+' M.D / '+won(mdAst*MD_RATE);
+  document.getElementById('pp-labor-exp').textContent      = won(expSum);
+  document.getElementById('pp-labor-total').textContent    = won(totalLabor);
+}
+
+async function ppParseText() {
+  const text = document.getElementById('pp_text_input')?.value.trim();
+  if(!text){alert('자재 내용을 입력해주세요.');return;}
+  const btn = event.target;
+  btn.textContent='⏳ AI 파싱 중...'; btn.disabled=true;
+  try {
+    const res = await fetch(PP_URL+'/api/parse-piping-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    const d = await res.json();
+    if(!d.success) throw new Error(d.error||'파싱 실패');
+    document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
+    (d.items||[]).forEach(item=>ppAddRow(item));
+    ppSetMode('manual');
+    alert('✅ '+（d.items||[]).length+'개 항목 인식 완료! 아래 표를 반드시 확인하세요.');
+  } catch(e){alert('오류: '+e.message);}
+  finally{btn.textContent='🤖 AI 자동 파싱';btn.disabled=false;}
+}
+
+async function ppHandleExcel(file) {
+  if(!file) return;
+  const zone  = document.getElementById('pp-excel-zone');
+  const title = document.getElementById('pp-excel-title');
+  zone.style.background='var(--light-blue)'; zone.style.borderColor='var(--primary)';
+  title.textContent='⏳ AI 분석 중...';
+  try {
+    const b64 = await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('실패'));r.readAsDataURL(file);});
+    const resp = await fetch(PP_URL+'/api/parse-piping-excel',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({excel_base64:b64,file_type:'xlsx'})});
+    const d = await resp.json();
+    if(!d.success) throw new Error(d.error||'인식 실패');
+    document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
+    (d.items||[]).forEach(item=>ppAddRow(item));
+    title.textContent='✅ '+file.name+' — '+(d.items||[]).length+'개 인식 완료 (반드시 확인!)';
+    zone.style.background='var(--green-lt)'; zone.style.borderColor='var(--green)';
+    ppSetMode('manual');
+  } catch(e){
+    title.textContent='❌ 인식 실패 — 직접 입력해주세요';
+    zone.style.background='var(--orange-lt)'; zone.style.borderColor='var(--orange)';
+    alert('오류: '+e.message);
+  }
+}
+
+function ppSetupDrag(zoneId, inputId, handleFn) {
+  const zone = document.getElementById(zoneId);
+  if(!zone) return;
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.borderColor='var(--primary)';zone.style.background='var(--light-blue)';});
+  zone.addEventListener('dragleave',()=>{zone.style.borderColor='';zone.style.background='';});
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.style.borderColor='';zone.style.background='';const f=e.dataTransfer.files[0];if(f)handleFn(f);});
+}
+
+async function ppSubmit() {
+  const company = document.getElementById('pp_company').value.trim();
+  const contact = document.getElementById('pp_contact').value.trim();
+  const email   = document.getElementById('pp_email').value.trim();
+  if(!company||!contact||!email){alert('고객 정보를 모두 입력해주세요.');return;}
+
+  const rows = Array.from(document.getElementById('pp-tbody').children).map(tr=>{
+    const n = tr.id.replace('pp-row-','');
+    return {
+      item:   document.getElementById('pp-item-'+n)?.value,
+      mat:    document.getElementById('pp-mat-'+n)?.value,
+      size:   document.getElementById('pp-size-'+n)?.value,
+      qty:    parseFloat(document.getElementById('pp-qty-'+n)?.value)||0,
+      unit:   document.getElementById('pp-unit-'+n)?.textContent,
+      uprice: parseFloat(document.getElementById('pp-uprice-'+n)?.value)||0,
+    };
+  }).filter(r=>r.qty>0);
+
+  if(rows.length===0){alert('자재 물량을 입력해주세요.');return;}
+  const diPrice = parseFloat(document.getElementById('pp_di_price').value)||28000;
+  const btn = document.querySelector('#quote-piping .fbtn-submit');
+  btn.textContent='⏳ 처리 중...'; btn.disabled=true;
+  try {
+    const res = await fetch(PP_URL+'/api/quote-piping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company,contact,email,items:rows,di_unit_price:diPrice})});
+    const d = await res.json();
+    if(d.success){
+      alert('✅ 견적서가 '+email+'으로 발송되었습니다!
+
+총 견적금액: '+Math.round(d.total).toLocaleString('ko-KR')+'원 (VAT 별도)');
+    } else { alert('❌ 오류: '+d.message); }
+  } catch(e){alert('서버 연결 실패: '+e.message);}
+  finally{btn.textContent='📧 배관공사 견적서 이메일 발송';btn.disabled=false;}
+}
+
+function ppReset() {
+  ['pp_company','pp_contact','pp_email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('pp-tbody').innerHTML=''; ppRowCount=0;
+  ppAddRow();
+  document.getElementById('pp_di_price').value=28000;
+  ppSetMode('manual');
+  ppCalcAll();
 }
 </script>
 
