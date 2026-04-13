@@ -1289,8 +1289,8 @@ if(name==='quote-pump'&&document.getElementById('pm-tbody')&&document.getElement
 if(name==='quote-pump') setupDragDrop('pm-upload-zone','pm_file_input',pmHandleFile);
 if(name==='quote-instrument') setupDragDrop('in-upload-zone','in_file_input',inHandleFile);
 if(name==='quote-piping'){
-  if(document.getElementById('pp-tbody')&&document.getElementById('pp-tbody').children.length===0) ppAddRow();
-  ppSetupDrag('pp-excel-zone','pp_excel_input',ppHandleExcel);
+  if(typeof ppAddRow !== 'undefined' && document.getElementById('pp-tbody')&&document.getElementById('pp-tbody').children.length===0) ppAddRow();
+  if(typeof ppSetupDrag !== 'undefined') ppSetupDrag('pp-excel-zone','pp_excel_input',ppHandleExcel);
 }
 if(name==='quote-fan-blower'){
   if(document.getElementById('fan-tbody')&&document.getElementById('fan-tbody').children.length===0) fbAddRow('fan');
