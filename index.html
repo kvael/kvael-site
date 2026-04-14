@@ -3506,7 +3506,7 @@ function ppSubmit() {
   var diRaw2=document.getElementById('pp_di_price')?document.getElementById('pp_di_price').value.replace(/[^0-9]/g,''):'28000'; var diPrice=parseInt(diRaw2)||28000;
   fetch(PP_URL+'/api/quote-piping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company:company,contact:contact,email:email,items:rows,di_unit_price:diPrice})})
   .then(function(r){return r.json();})
-  .then(function(d){if(d.success){alert('견적서가 '+email+'으로 발송되었습니다! 총 견적금액: '+Math.round(d.total).toLocaleString('ko-KR')+'원 (VAT 별도)');}else{alert('오류: '+d.message);}})
+  .then(function(d){btn.textContent='📧 배관공사 견적서 이메일 발송';btn.disabled=false;btn.style.opacity='1';if(d.success){alert('✅ 견적서가 '+email+'으로 발송되었습니다! 총 견적금액: '+Math.round(d.total).toLocaleString('ko-KR')+'원 (VAT 별도)');}else{alert('❌ 오류: '+d.message);}})
   .catch(function(e){alert('서버 연결 실패: '+e.message);});
 }
 
