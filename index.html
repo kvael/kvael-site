@@ -2815,7 +2815,7 @@ function fbAddRow(type, data) {
       <td style="padding:3px"><input type="number" id="fan-press-${n}" value="${press}" placeholder="예:200" step="1" oninput="fbUpdateKw('fan',${n})" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
       <td style="padding:3px;text-align:center;font-size:11px;font-weight:700;color:var(--primary);font-family:'JetBrains Mono',monospace" id="fan-kw-${n}">${kw}</td>
       <td style="padding:3px"><select id="fan-mat-${n}" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px;font-family:'Pretendard',sans-serif">
-        <option>STS304</option><option>FRP</option><option>SS275</option>
+        <option>STS304</option><option>FRP</option><option>PVC+FRP</option><option>SS275</option>
       </select></td>
       <td style="padding:3px"><input type="number" id="fan-qty-${n}" value="${data?.qty||1}" min="1" style="width:45px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:4px 5px;font-size:11px"></td>
       <td style="padding:3px;text-align:center"><button onclick="fbDelRow('fan',${n})" style="background:none;border:none;cursor:pointer;color:#cc0000;font-size:13px">✕</button></td>
