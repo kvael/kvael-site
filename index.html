@@ -2253,6 +2253,7 @@ function pmGetRows(){
       voltage:document.getElementById('pm-volt-'+n)?.value,
       qty:parseInt(document.getElementById('pm-qty-'+n)?.value)||1,
       note:document.getElementById('pm-note-'+n)?.value||'',
+      flow_unit:document.getElementById('pm-flow-unit-'+n)?.textContent||'m³/hr',
     });
   });
   return rows;
