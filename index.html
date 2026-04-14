@@ -2121,7 +2121,7 @@ function sqResetForm(){
               <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">No.</th>
               <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">펌프 타입</th>
               <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">유체 종류</th>
-              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">유량</th>
+              <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">유량 (m³/hr)</th>
               <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">양정 (m)</th>
               <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">입액부 재질</th>
               <th style="background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:8px 6px;text-align:center;white-space:nowrap">전압</th>
@@ -2201,13 +2201,13 @@ function pmAddRow() {
   tr.style.borderBottom = '1px solid var(--border)';
   tr.innerHTML = `
     <td style="text-align:center;font-size:11px;font-weight:700;color:var(--text3);padding:6px 4px">${n}</td>
-    <td style="padding:4px"><select id="pm-type-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:140px">
+    <td style="padding:4px"><select id="pm-type-${n}" onchange="pmUpdateFlowUnit(${n})" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:140px">
       ${PUMP_TYPES.map(t=>`<option value="${t}">${t}</option>`).join('')}
     </select></td>
     <td style="padding:4px"><select id="pm-fluid-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:90px">
       ${PUMP_FLUIDS.map(f=>`<option value="${f}">${f}</option>`).join('')}
     </select></td>
-    <td style="padding:4px"><input type="number" id="pm-flow-${n}" placeholder="" step="0.1" min="0.1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:75px"></td>
+    <td style="padding:4px"><input type="number" id="pm-flow-${n}" placeholder="" step="0.1" min="0.1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:75px"><span id="pm-flow-unit-${n}" style="font-size:10px;color:var(--text3);margin-left:2px">m³/hr</span></td>
     <td style="padding:4px"><input type="number" id="pm-head-${n}" placeholder="" step="1" min="1" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:65px"></td>
     <td style="padding:4px"><select id="pm-mat-${n}" style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:5px 6px;font-size:12px;width:100%;font-family:'Pretendard',sans-serif;min-width:110px">
       ${PUMP_MATERIALS.map(m=>`<option value="${m}">${m}</option>`).join('')}
