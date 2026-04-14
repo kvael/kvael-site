@@ -2285,7 +2285,14 @@ async function pmSubmit(){
       div.style.cssText='background:#fff;border:1px solid var(--green-bd);border-radius:8px;padding:12px 14px;margin-bottom:8px';
       div.innerHTML=`
         <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;border-bottom:1px solid var(--green-bd);padding-bottom:6px">
-          No.${idx+1} — ${row.pump_type} | ${row.flow}m³/hr × ${row.head}m | ${row.fluid}
+          No.${idx+1} — ${row.pump_type} | ${(function(){
+            var f=parseFloat(row.flow)||0;
+            var u=row.flow_unit||'m³/hr';
+            if(u==='ml/min') return (f/1000000*60).toFixed(4);
+            if(u==='L/hr') return (f/1000).toFixed(4);
+            if(u==='LPM') return (f*60/1000).toFixed(4);
+            return f;
+          })()} m³/hr × ${row.head}m | ${row.fluid}
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">
           <div style="background:var(--green-lt);border-radius:6px;padding:7px 9px"><div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:2px">선정 모델</div><div style="font-size:12px;font-weight:700;color:var(--navy)">${r.model_name||'—'}</div></div>
