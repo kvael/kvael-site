@@ -3136,7 +3136,7 @@ function logoClick() {
   </div>
   <div class="notice-bar">
     ⚠ 본 견적은 <strong>참고용(Budgetary)</strong>이며 실제 금액과 차이가 있을 수 있습니다.
-    모든 배관 부속은 <strong>용접 타입(STS304)</strong> 기준이며, 정확한 견적은 K-VAEL 담당자에게 문의해 주세요.
+    모든 배관 부속은 <strong>용접 타입(STS304) · SCH10 · 10K</strong> 기준이며, 정확한 견적은 K-VAEL 담당자에게 문의해 주세요.
   </div>
 
   <!-- 고객 정보 -->
@@ -3485,6 +3485,12 @@ function ppSetupDrag(zoneId,inputId,handleFn) {
 }
 
 function ppSubmit() {
+  var btn = document.querySelector('#quote-piping .fbtn-submit');
+  btn.textContent = '⏳ 견적서 발송 중... (10~20초 소요)';
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  setTimeout(function(){ if(btn.disabled){ btn.textContent='📧 배관공사 견적서 이메일 발송'; btn.disabled=false; btn.style.opacity='1'; } }, 30000);
+
   var company=document.getElementById('pp_company')?document.getElementById('pp_company').value.trim():'';
   var contact=document.getElementById('pp_contact')?document.getElementById('pp_contact').value.trim():'';
   var email=document.getElementById('pp_email')?document.getElementById('pp_email').value.trim():'';
